@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Financeiro — Oliveira Foundation 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap');
+:root{--teal:#006b65;--teal-dk:#004f4a;--cyan:#00bfb3;--lime:#b8e000;--surface:#f4f7f6;--card:#ffffff;--border:#e2e8e7;--ink:#0d1117;--soft:#3a4150;--muted:#8891a0;--r:10px;--shadow:0 1px 4px rgba(0,0,0,0.07)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--surface);color:var(--ink);font-size:13.5px;line-height:1.5}
+header{background:var(--teal-dk);padding:0 20px;position:relative;overflow:hidden}
+header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--cyan),var(--lime))}
+.hd{max-width:1280px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;padding:20px 0 18px;flex-wrap:wrap;gap:10px}
+.hd-left .eyebrow{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:6px}
+.hd-left h1{font-size:20px;font-weight:700;letter-spacing:-.02em;color:#fff;line-height:1.2}
+.hd-left h1 span{color:var(--lime)}
+.hd-right{text-align:right;font-size:11px;color:rgba(255,255,255,.45)}
+.hd-right strong{display:block;color:rgba(255,255,255,.85);font-size:12px;font-weight:500;margin-bottom:2px}
+@media(max-width:600px){.hd-right{display:none}}
+nav.tabs{background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.tabs-inner{max-width:1280px;margin:0 auto;padding:0 16px;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs-inner::-webkit-scrollbar{display:none}
+.tab{padding:11px 14px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color .15s,border-color .15s;flex-shrink:0}
+.tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab:hover:not(.active){color:var(--soft)}
+main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
+@media(min-width:600px){main{padding:24px 28px 64px}}
+@media(min-width:1000px){main{padding:28px 40px 64px}}
+.section{display:none}.section.active{display:block}
+.kpi-row{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:700px){.kpi-row{grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+@media(min-width:600px){.kpi{padding:18px 20px}}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--kpi-accent,var(--cyan))}
+.kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:6px}
+.kpi-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;line-height:1;margin-bottom:4px}
+@media(min-width:600px){.kpi-val{font-size:21px}}
+.kpi-sub{font-size:10.5px;color:var(--muted)}
+.g2{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+.g2r{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(min-width:700px){.g2{grid-template-columns:3fr 2fr;gap:14px;margin-bottom:14px}}
+@media(min-width:700px){.g2r{grid-template-columns:2fr 3fr;gap:14px;margin-bottom:14px}}
+@media(min-width:700px){.g3{grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow)}
+@media(min-width:600px){.card{padding:20px 22px}}
+.card-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:12.5px;font-weight:600;color:var(--ink)}
+.card-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.chart-wrap{position:relative}
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.prog-label{font-size:11px;color:var(--soft);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prog-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;background:var(--bar-color,var(--cyan))}
+.prog-val{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink);flex-shrink:0;text-align:right;min-width:70px}
+.tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.tbl th{text-align:left;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:7px 8px;border-bottom:1px solid var(--border);background:var(--surface)}
+.tbl td{padding:8px;border-bottom:1px solid var(--border);color:var(--soft)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:#f9fbfa}
+.tbl td.num{font-family:'DM Mono',monospace;font-size:11px;text-align:right;color:var(--ink)}
+.sec-hd{margin-bottom:18px}
+.sec-hd h2{font-size:16px;font-weight:700;margin-bottom:3px}
+.sec-hd p{font-size:12px;color:var(--muted)}
+.maxwell-banner{background:linear-gradient(135deg,var(--teal-dk),#003d38);border-radius:var(--r);padding:16px 18px;color:#fff;margin-bottom:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.maxwell-banner h3{font-size:13px;font-weight:700;margin-bottom:4px}
+.maxwell-banner p{font-size:11px;color:rgba(255,255,255,.65)}
+.maxwell-kpis{display:flex;gap:16px;flex-wrap:wrap}
+.mx-kpi .val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--lime);line-height:1}
+.mx-kpi .lbl{font-size:9.5px;color:rgba(255,255,255,.5);margin-top:3px}
+.month-select{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.mbtn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card);font-size:11.5px;font-weight:500;color:var(--soft);cursor:pointer;transition:all .15s}
+.mbtn.active,.mbtn:hover{background:var(--teal);color:#fff;border-color:var(--teal)}
+.team-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+@media(min-width:700px){.team-grid{grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}}
+.team-group{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.team-group-hd{padding:12px 16px;color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.team-member{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--border);gap:10px}
+.team-member:last-child{border-bottom:none}
+.tm-info{flex:1;min-width:0}
+.tm-name{font-size:12px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tm-role{font-size:10.5px;color:var(--muted)}
+.tm-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--teal);flex-shrink:0}
+.rec-grid{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:600px){.rec-grid{grid-template-columns:1fr 1fr;gap:14px}}
+.rec{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;box-shadow:var(--shadow)}
+.rec-num{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;color:var(--rec-color,var(--cyan));line-height:1;margin-bottom:8px}
+.rec-title{font-size:13.5px;font-weight:600;margin-bottom:6px}
+.rec-body{font-size:12px;color:var(--soft);line-height:1.65}
+.rec-tag{display:inline-block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;padding:2px 8px;border-radius:20px;margin-top:10px;background:var(--tag-bg,#d1fae5);color:var(--tag-col,#065f46)}
+.insight-row{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+@media(min-width:600px){.insight-row{grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}}
+.insight{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--ins-color,var(--cyan));border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow)}
+.insight-icon{font-size:16px;margin-bottom:5px}
+.insight-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.insight-body{font-size:11.5px;color:var(--soft);line-height:1.55}
+.finale{background:linear-gradient(135deg,var(--teal-dk),#003d38);border-radius:var(--r);padding:20px;color:#fff;margin-top:14px}
+.finale h3{font-size:15px;font-weight:700;margin-bottom:6px}
+.finale p{font-size:12px;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:14px}
+.finale-steps{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:560px){.finale-steps{grid-template-columns:repeat(3,1fr)}}
+.fs{background:rgba(255,255,255,.1);border-radius:8px;padding:14px}
+.fs-num{font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--lime);line-height:1;margin-bottom:6px}
+.fs-text{font-size:11.5px;color:rgba(255,255,255,.8)}
+.nota-fg{background:#fef9e7;border:1px solid #f59e0b44;border-left:3px solid #f59e0b;border-radius:var(--r);padding:10px 14px;font-size:11px;color:#92400e;margin-bottom:14px}
+.nota-fg strong{display:block;margin-bottom:2px;font-size:11.5px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <div class="hd-left">
+      <p class="eyebrow">Oliveira Foundation · Controle Financeiro</p>
+      <h1>Painel de <span>Caixa & Custos</span> — 2026</h1>
+    </div>
+    <div class="hd-right">
+      <strong>Jan–Mai 2026 · Realizado</strong>
+      Fonte: Contas a Pagar + Entradas<br>
+      Repasse Maxwell + Doações
+    </div>
+  </div>
+</header>
+<nav class="tabs">
+  <div class="tabs-inner">
+    <button class="tab active" onclick="show('visao-geral',this)">Visão Geral</button>
+    <button class="tab" onclick="show('custos',this)">Centros de Custo</button>
+    <button class="tab" onclick="show('maxwell',this)">Maxwell Foundation</button>
+    <button class="tab" onclick="show('equipe',this)">Equipe & Facilitadores</button>
+    <button class="tab" onclick="show('pagamentos',this)">Pagamentos</button>
+    <button class="tab" onclick="show('recomendacoes',this)">Recomendações</button>
+  </div>
+</nav>
+<main>
+<div class="section active" id="visao-geral">
+  <div class="kpi-row">
+    <div class="kpi" style="--kpi-accent:var(--teal)"><p class="kpi-label">Total Despesas Jan–Mai</p><p class="kpi-val">R$ 271k</p><p class="kpi-sub">271.247 realizados · 5 meses</p></div>
+    <div class="kpi" style="--kpi-accent:#10b981"><p class="kpi-label">Total Receitas Jan–Mai</p><p class="kpi-val">R$ 960k</p><p class="kpi-sub">Maxxwell + doações + clientes</p></div>
+    <div class="kpi" style="--kpi-accent:var(--lime)"><p class="kpi-val" style="color:var(--teal)">R$ 689k</p><p class="kpi-label">Saldo Acumulado</p><p class="kpi-sub">Caixa disponível ao final de Maio</p></div>
+    <div class="kpi" style="--kpi-accent:var(--cyan)"><p class="kpi-label">Custo Médio Mensal</p><p class="kpi-val">R$ 54k</p><p class="kpi-sub">54.249/mês · tendência crescente</p></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-hd"><div><p class="card-title">Despesas Mensais por Centro de Custo</p><p class="card-sub">Composição empilhada · R$</p></div></div><div class="chart-wrap" style="height:250px"><canvas id="chartStack"></canvas></div></div>
+    <div class="card"><div class="card-hd"><div><p class="card-title">Distribuição Jan–Mai</p><p class="card-sub">% de cada centro de custo</p></div></div><div class="chart-wrap" style="height:250px"><canvas id="chartDonut"></canvas></div></div>
+  </div>
+  <div class="g2r">
+    <div class="card"><div class="card-hd"><div><p class="card-title">Top 10 Fornecedores</p><p class="card-sub">Maior volume acumulado Jan–Mai</p></div></div><div id="top10wrap" style="padding-top:4px"></div></div>
+    <div class="card"><div class="card-hd"><div><p class="card-title">Receitas vs. Despesas</p><p class="card-sub">Fluxo mensal</p></div></div><div class="chart-wrap" style="height:230px"><canvas id="chartFluxo"></canvas></div></div>
+  </div>
+</div>
+<div class="section" id="custos">
+  <div class="sec-hd"><h2>Centros de Custo</h2><p>Todas as despesas classificadas por categoria · Jan–Mai 2026</p></div>
+  <div class="g2">
+    <div class="card"><div class="card-hd"><div><p class="card-title">Evolução por Categoria</p><p class="card-sub">Tendência mensal · R$</p></div></div><div class="chart-wrap" style="height:260px"><canvas id="chartLine"></canvas></div></div>
+    <div class="card"><div class="card-hd"><div><p class="card-title">Total por Centro de Custo</p><p class="card-sub">Ranking Jan–Mai · R$</p></div></div><div class="chart-wrap" style="height:260px"><canvas id="chartHBar"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-hd"><div><p class="card-title">Detalhamento Mensal por Categoria</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Categoria</th><th>Jan</th><th>Fev</th><th>Mar</th><th>Abr</th><th>Mai</th><th style="text-align:right">Total</th><th style="text-align:right">%</th></tr></thead><tbody id="catTableBody"></tbody></table></div></div>
+</div>
+<div class="section" id="maxwell">
+  <div class="maxwell-banner">
+    <div><h3>Maxwell Foundation — Parceiro Estratégico</h3><p>Principal fonte de funding operacional · Expense Report Jan–Mai 2026</p></div>
+    <div class="maxwell-kpis">
+      <div class="mx-kpi"><p class="val">R$ 823k</p><p class="lbl">Repasses Recebidos</p></div>
+      <div class="mx-kpi"><p class="val">85,8%</p><p class="lbl">do Total Receitas</p></div>
+      <div class="mx-kpi"><p class="val">R$ 165k</p><p class="lbl">Média/Mês</p></div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="kpi" style="--kpi-accent:var(--teal)"><p class="kpi-label">Salary & Wages (Sede + Ped.)</p><p class="kpi-val">R$ 126k</p><p class="kpi-sub">Equipe sede + pedagógica</p></div>
+    <div class="kpi" style="--kpi-accent:#0891b2"><p class="kpi-label">Facilitators / Trainers</p><p class="kpi-val">R$ 41k</p><p class="kpi-sub">Eventuais por programa</p></div>
+    <div class="kpi" style="--kpi-accent:var(--cyan)"><p class="kpi-label">Total Personnel</p><p class="kpi-val">R$ 167k</p><p class="kpi-sub">62% das despesas totais</p></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-hd"><div><p class="card-title">Repasse Maxxwell × Despesas Mensais</p><p class="card-sub">Cobertura do repasse sobre as despesas</p></div></div><div class="chart-wrap" style="height:240px"><canvas id="chartMaxwell"></canvas></div></div>
+    <div class="card"><div class="card-hd"><div><p class="card-title">Composição do Expense Report</p><p class="card-sub">Categorias · acumulado Jan–Mai</p></div></div><div class="chart-wrap" style="height:240px"><canvas id="chartMaxwellPie"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-hd"><div><p class="card-title">Expense Report Resumido — Jan a Mai 2026</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Linha</th><th>Jan</th><th>Fev</th><th>Mar</th><th>Abr</th><th>Mai</th><th style="text-align:right">Total</th></tr></thead><tbody>
+    <tr style="background:#f0fdfa"><td style="font-weight:600;color:var(--teal)">Monthly Invoice (Repasse)</td><td class="num">167.360</td><td class="num">165.497</td><td class="num">167.103</td><td class="num">158.144</td><td class="num">165.145</td><td class="num" style="color:var(--teal);font-weight:700">823.249</td></tr>
+    <tr><td style="padding-left:18px;color:var(--soft)">Other Income</td><td class="num">115.082</td><td class="num">6.127</td><td class="num">1.940</td><td class="num">13.690</td><td class="num">190</td><td class="num">137.029</td></tr>
+    <tr style="background:#f0fdfa;font-weight:600"><td>Total Income</td><td class="num">282.442</td><td class="num">171.624</td><td class="num">169.043</td><td class="num">171.834</td><td class="num">165.335</td><td class="num" style="color:var(--teal);font-weight:700">960.277</td></tr>
+    <tr><td colspan="7" style="padding:4px 0;background:transparent"></td></tr>
+    <tr><td style="padding-left:18px;color:var(--soft)">Salary & Wages (Sede + Ped.)</td><td class="num">22.250</td><td class="num">25.463</td><td class="num">23.437</td><td class="num">27.785</td><td class="num">26.500</td><td class="num">125.435</td></tr>
+    <tr><td style="padding-left:18px;color:var(--soft)">Facilitators / Trainers</td><td class="num">8.838</td><td class="num">3.375</td><td class="num">5.195</td><td class="num">10.651</td><td class="num">13.000</td><td class="num">41.059</td></tr>
+    <tr><td style="padding-left:18px;color:var(--soft)">Aluguel Sede</td><td class="num">4.174</td><td class="num">8.348</td><td class="num">4.845</td><td class="num">6.700</td><td class="num">8.581</td><td class="num">32.649</td></tr>
+    <tr><td style="padding-left:18px;color:var(--soft)">Contabilidade & Jurídico</td><td class="num">5.524</td><td class="num">4.609</td><td class="num">5.076</td><td class="num">4.760</td><td class="num">4.809</td><td class="num">24.778</td></tr>
+    <tr><td style="padding-left:18px;color:var(--soft)">Marketing</td><td class="num">0</td><td class="num">3.000</td><td class="num">6.311</td><td class="num">5.625</td><td class="num">3.290</td><td class="num">18.226</td></tr>
+    <tr><td style="padding-left:18px;color:var(--soft)">Logística & Distribuição</td><td class="num">0</td><td class="num">1.000</td><td class="num">1.533</td><td class="num">2.198</td><td class="num">10.129</td><td class="num">14.861</td></tr>
+    <tr><td style="padding-left:18px;color:var(--soft)">Infraestrutura Sede</td><td class="num">849</td><td class="num">2.443</td><td class="num">3.082</td><td class="num">2.208</td><td class="num">1.581</td><td class="num">10.163</td></tr>
+    <tr><td style="padding-left:18px;color:var(--soft)">Sistemas & Tecnologia</td><td class="num">682</td><td class="num">272</td><td class="num">747</td><td class="num">415</td><td class="num">1.214</td><td class="num">3.329</td></tr>
+    <tr style="background:#f0fdfa;font-weight:600"><td>Total Expenses</td><td class="num">42.316</td><td class="num">48.510</td><td class="num">51.880</td><td class="num">59.437</td><td class="num">69.104</td><td class="num" style="color:var(--teal);font-weight:700">271.247</td></tr>
+    <tr style="background:var(--teal-dk)"><td style="color:#fff;font-weight:700;padding:10px">BALANCE</td><td class="num" style="color:var(--lime);font-weight:700">240.125</td><td class="num" style="color:var(--lime);font-weight:700">123.114</td><td class="num" style="color:var(--lime);font-weight:700">117.163</td><td class="num" style="color:var(--lime);font-weight:700">112.397</td><td class="num" style="color:var(--lime);font-weight:700">96.231</td><td class="num" style="color:var(--lime);font-weight:700;font-size:14px">689.030</td></tr>
+  </tbody></table></div></div>
+</div>
+<div class="section" id="equipe">
+  <div class="sec-hd"><h2>Equipe & Facilitadores</h2><p>Pagamentos por grupo · Jan–Mai 2026</p></div>
+  <div class="kpi-row">
+    <div class="kpi" style="--kpi-accent:var(--teal-dk)"><p class="kpi-label">Equipe Sede</p><p class="kpi-val">R$ 82k</p><p class="kpi-sub">5 pessoas · fixo mensal</p></div>
+    <div class="kpi" style="--kpi-accent:var(--teal)"><p class="kpi-label">Equipe Pedagógica</p><p class="kpi-val">R$ 43k</p><p class="kpi-sub">Márcia, Daniel, Rita</p></div>
+    <div class="kpi" style="--kpi-accent:#0891b2"><p class="kpi-label">Facilitadores Eventuais</p><p class="kpi-val">R$ 41k</p><p class="kpi-sub">Profissionais que aplicam as aulas</p></div>
+    <div class="kpi" style="--kpi-accent:var(--muted)"><p class="kpi-label">Total com Pessoas</p><p class="kpi-val">R$ 167k</p><p class="kpi-sub">61,5% das despesas totais</p></div>
+  </div>
+  <div class="team-grid">
+    <div class="team-group">
+      <div class="team-group-hd" style="background:var(--teal-dk)">👥 Equipe Sede</div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Juliana Velasco</p><p class="tm-role">Diretora de Operações</p></div><p class="tm-val">R$ 32.500</p></div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Victor Raposo Romling</p><p class="tm-role">Tecnologia</p></div><p class="tm-val">R$ 15.263</p></div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Diego Silva Garbim</p><p class="tm-role">Financeiro</p></div><p class="tm-val">R$ 12.700</p></div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Giseli Figueiredo</p><p class="tm-role">Administrativo</p></div><p class="tm-val">R$ 12.572</p></div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Juliana Ellaro Beijo</p><p class="tm-role">Coord. Eu Lidero</p></div><p class="tm-val">R$ 9.275</p></div>
+      <div style="padding:10px 14px;background:#f0fdfa;border-top:1px solid var(--border);display:flex;justify-content:space-between"><span style="font-size:11px;font-weight:600;color:var(--teal)">Subtotal Sede</span><span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--teal)">R$ 82.310</span></div>
+    </div>
+    <div class="team-group">
+      <div class="team-group-hd" style="background:var(--teal)">📚 Equipe Pedagógica</div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Márcia dos Santos Pinheiro</p><p class="tm-role">Coord. Pedagógica</p></div><p class="tm-val">R$ 15.500</p></div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Daniel Galdino Fonseca</p><p class="tm-role">Coord. Pedagógico</p></div><p class="tm-val">R$ 15.000</p></div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Planet Printer / Rita</p><p class="tm-role">Coord. Pedagógica</p></div><p class="tm-val">R$ 12.625</p></div>
+      <div style="padding:10px 14px;background:#f0fdfa;border-top:1px solid var(--border);display:flex;justify-content:space-between"><span style="font-size:11px;font-weight:600;color:var(--teal)">Subtotal Pedagógico</span><span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--teal)">R$ 43.125</span></div>
+    </div>
+    <div class="team-group">
+      <div class="team-group-hd" style="background:#0891b2">🎓 Facilitadores Eventuais</div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Lara TJ</p><p class="tm-role">Facilitadora</p></div><p class="tm-val">R$ 9.000</p></div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Rodrigo Maciel</p><p class="tm-role">Facilitador</p></div><p class="tm-val">R$ 2.750</p></div>
+      <div class="team-member"><div class="tm-info"><p class="tm-name">Demais facilitadores</p><p class="tm-role">Adriana, Valéria, Maltoni…</p></div><p class="tm-val">R$ 29.309</p></div>
+      <div style="padding:10px 14px;background:#e0f7fa;border-top:1px solid var(--border);display:flex;justify-content:space-between"><span style="font-size:11px;font-weight:600;color:#0891b2">Subtotal Facilitadores</span><span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:#0891b2">R$ 41.059</span></div>
+    </div>
+  </div>
+  <div class="card" style="border-left:3px solid #7c3aed;margin-bottom:12px">
+    <div class="card-hd"><div><p class="card-title">Prestadores Encerrados — Reclassificados pelo Serviço Prestado</p><p class="card-sub">Classificados pelo fato gerador</p></div></div>
+    <table class="tbl"><thead><tr><th>Nome</th><th>Serviço Real</th><th>Centro de Custo</th><th style="text-align:right">Status</th></tr></thead><tbody>
+      <tr><td>Lara TJ</td><td>Assessoria de Imprensa</td><td><span style="background:#7c3aed22;color:#7c3aed;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600">Marketing</span></td><td class="num" style="color:var(--muted)">Encerrado</td></tr>
+      <tr><td>Alisson Ferreira / Chagas</td><td>Criação de Materiais</td><td><span style="background:#7c3aed22;color:#7c3aed;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600">Marketing</span></td><td class="num" style="color:var(--muted)">Encerrado</td></tr>
+      <tr><td>Rafael Igor Barbosa</td><td>Tecnologia / Desenvolvimento</td><td><span style="background:#1d4ed822;color:#1d4ed8;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600">Sistemas & Tecnologia</span></td><td class="num" style="color:var(--muted)">Encerrado</td></tr>
+      <tr><td>Erika Coreli</td><td>Assistente de Operações</td><td><span style="background:#004f4a22;color:#004f4a;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600">Equipe Sede</span></td><td class="num" style="color:var(--muted)">Encerrado</td></tr>
+    </tbody></table>
+  </div>
+  <div class="card"><div class="card-hd"><div><p class="card-title">Evolução Mensal por Grupo</p><p class="card-sub">Sede × Pedagógico × Facilitadores</p></div></div><div class="chart-wrap" style="height:220px"><canvas id="chartEquipe"></canvas></div></div>
+</div>
+<div class="section" id="pagamentos">
+  <div class="sec-hd"><h2>Pagamentos por Mês</h2><p>Selecione o mês para ver os lançamentos detalhados</p></div>
+  <div class="nota-fg"><strong>📌 Critério — Fato Gerador</strong>Classificação pelo fato gerador da despesa, não pelo método de pagamento.</div>
+  <div class="month-select" id="msel"></div>
+  <div class="g3">
+    <div class="kpi" style="--kpi-accent:var(--teal)"><p class="kpi-label">Total do Mês</p><p class="kpi-val" id="pkTotal">—</p></div>
+    <div class="kpi" style="--kpi-accent:var(--cyan)"><p class="kpi-label">Nº Lançamentos</p><p class="kpi-val" id="pkQtd">—</p></div>
+    <div class="kpi" style="--kpi-accent:#d97706"><p class="kpi-label">Maior Pagamento</p><p class="kpi-val" id="pkMaior">—</p><p class="kpi-sub" id="pkMaiorNome">—</p></div>
+  </div>
+  <div class="card"><div class="card-hd"><div><p class="card-title" id="payTitle">Lançamentos</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Fornecedor / Descrição</th><th>Centro de Custo</th><th>Venc.</th><th style="text-align:right">Valor</th></tr></thead><tbody id="payBody"></tbody></table></div></div>
+</div>
+<div class="section" id="recomendacoes">
+  <div class="insight-row">
+    <div class="insight" style="--ins-color:#ef4444"><div class="insight-icon">🚨</div><p class="insight-title">Dependência Maxxwell = 85,8%</p><p class="insight-body">Praticamente todo o funding operacional vem de um único parceiro. Diversificação é prioridade.</p></div>
+    <div class="insight" style="--ins-color:#f59e0b"><div class="insight-icon">📈</div><p class="insight-title">Custos crescendo 63% em 5 meses</p><p class="insight-body">Jan: R$ 42k → Mai: R$ 69k. Ampliação de equipe explica o crescimento. Precisa de meta orçamentária.</p></div>
+    <div class="insight" style="--ins-color:#10b981"><div class="insight-icon">💡</div><p class="insight-title">Receita própria ainda pequena</p><p class="insight-body">R$ 137k em doações vs. R$ 271k de despesas. Eu Lidero, DISC e programas têm potencial de triplicar.</p></div>
+  </div>
+  <div class="rec-grid">
+    <div class="rec" style="--rec-color:var(--teal)"><p class="rec-num">01</p><p class="rec-title">Integrar Omie → Dashboard automático</p><p class="rec-body">Com 3–5 dias de trabalho técnico (Victor lidera), este painel passa a ser atualizado automaticamente todo dia, sem planilhas.</p><span class="rec-tag" style="--tag-bg:#d1fae5;--tag-col:#065f46">Impacto Alto · Urgente</span></div>
+    <div class="rec" style="--rec-color:#7c3aed"><p class="rec-num">02</p><p class="rec-title">Expense Report Maxwell — fluxo mensal</p><p class="rec-body">Com os centros de custo categorizados, o relatório pode ser gerado em minutos. Envio até dia 5 de cada mês.</p><span class="rec-tag" style="--tag-bg:#ede9fe;--tag-col:#5b21b6">Processo · Implementar Já</span></div>
+    <div class="rec" style="--rec-color:#d97706"><p class="rec-num">03</p><p class="rec-title">Orçamento mensal por centro de custo</p><p class="rec-body">Facilitadores: R$ 1,6k (Jan) → R$ 13k (Mai). Um orçamento evita surpresas na diretoria.</p><span class="rec-tag" style="--tag-bg:#fef3c7;--tag-col:#92400e">Gestão · Médio Prazo</span></div>
+    <div class="rec" style="--rec-color:#0891b2"><p class="rec-num">04</p><p class="rec-title">Meta de receita própria 2026</p><p class="rec-body">Meta de R$ 400k em receita própria no 2º semestre reduziria dependência Maxxwell de 85% para ~67%.</p><span class="rec-tag" style="--tag-bg:#dbeafe;--tag-col:#1e40af">Estratégia · Alta Prioridade</span></div>
+    <div class="rec" style="--rec-color:#065f46"><p class="rec-num">05</p><p class="rec-title">Classificar lançamentos no Omie</p><p class="rec-body">Todo lançamento com categoria correta pelo fato gerador. É o que viabiliza o dashboard automático.</p><span class="rec-tag" style="--tag-bg:#d1fae5;--tag-col:#065f46">Financeiro · 1–2 dias</span></div>
+    <div class="rec" style="--rec-color:#92400e"><p class="rec-num">06</p><p class="rec-title">Projeção de caixa rolling 90 dias</p><p class="rec-body">Com custos fixos e repasses previstos, projeção de caixa 90 dias para decisões antecipadas da diretoria.</p><span class="rec-tag" style="--tag-bg:#fef3c7;--tag-col:#92400e">Diretoria · Próxima Reunião</span></div>
+  </div>
+  <div class="finale">
+    <h3>🎯 Plano para a próxima reunião de diretoria</h3>
+    <p>Você já tem todos os dados organizados. O que falta é apresentar o panorama com decisões concretas.</p>
+    <div class="finale-steps">
+      <div class="fs"><p class="fs-num">Passo 1</p><p class="fs-text">Apresentar este painel para Fabiane mostrando a evolução Jan–Mai por centro de custo</p></div>
+      <div class="fs"><p class="fs-num">Passo 2</p><p class="fs-text">Propor envio do Expense Report Maxwell até dia 5 de cada mês — já com Jan–Mai pronto</p></div>
+      <div class="fs"><p class="fs-num">Passo 3</p><p class="fs-text">Pedir aprovação para integração Omie → automação do painel (Victor lidera, 1 semana)</p></div>
+    </div>
+  </div>
+</div>
+</main>
+<script>
+const months=['Jan','Fev','Mar','Abr','Mai'];
+const catMonthly={'Equipe Sede':[13250,16462.87,17436.66,18160,17000],'Equipe Pedagógica':[9000,9000,6000,9625,9500],'Facilitadores':[1637.5,1125,1255,1375,4250],'Aluguel Sede':[4174.07,8348.14,4844.95,6699.95,8581.44],'Contabilidade & Jurídico':[5523.63,4776.89,5075.56,4760.45,4809.05],'Marketing':[0,3000,6311.27,5625.12,3290],'Logística & Distribuição':[0,1000,1533.24,2198.15,10129.35],'Infraestrutura Sede':[849.14,2443.08,5534.65,4068.54,1941.87],'Material Didático':[0,250,0,299.60,1668.10],'Sistemas & Tecnologia':[682.08,272.1,746.89,414.66,1213.67],'Eu Lidero / Projetos':[0,0,0,1352.94,360.58],'Eventos & Programas':[0,0,2505,727.65,3549.60]};
+const catColors={'Equipe Sede':'#004f4a','Equipe Pedagógica':'#006b65','Facilitadores':'#0891b2','Aluguel Sede':'#0e7490','Contabilidade & Jurídico':'#92400e','Marketing':'#7c3aed','Logística & Distribuição':'#d97706','Infraestrutura Sede':'#065f46','Material Didático':'#0284c7','Sistemas & Tecnologia':'#1d4ed8','Eu Lidero / Projetos':'#10b981','Eventos & Programas':'#9ca3af'};
+const expMonthly=[42316.42,48510.08,51879.98,59436.81,69103.87];
+const repasse=[167360,165496.79,167103,158144,165144.96];
+const otherInc=[115081.55,6127,1940,13690,190];
+const cats=Object.keys(catMonthly);
+const totalExp=expMonthly.reduce((a,b)=>a+b,0);
+const fmt=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtK=n=>'R$ '+(n/1000).toFixed(1)+'k';
+function catTotal(c){return catMonthly[c].reduce((a,b)=>a+b,0);}
+const top10=[{name:'Velasco Comercio / Juliana',cat:'Equipe Sede',val:32500},{name:'Criativa Dec — Aluguel Sede',cat:'Aluguel Sede',val:27244},{name:'Márcia dos Santos Pinheiro',cat:'Equipe Pedagógica',val:15500},{name:'Victor Raposo Romling',cat:'Equipe Sede',val:15263},{name:'Andrade Consultoria',cat:'Contabilidade & Jurídico',val:15028},{name:'Daniel Galdino Fonseca',cat:'Equipe Pedagógica',val:15000},{name:'Diego Silva Garbim',cat:'Equipe Sede',val:12700},{name:'Planet Printer / Rita',cat:'Equipe Pedagógica',val:12625},{name:'Giseli Figueiredo',cat:'Equipe Sede',val:12572},{name:'Juliana Ellaro Beijo',cat:'Equipe Sede',val:9275}];
+new Chart(document.getElementById('chartStack'),{type:'bar',data:{labels:months,datasets:cats.filter(c=>catTotal(c)>0).map(c=>({label:c,data:catMonthly[c],backgroundColor:catColors[c]+'cc',borderWidth:0,borderRadius:2}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:11}}},y:{stacked:true,grid:{color:'#f0f4f3'},ticks:{font:{size:11},callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
+const dc=cats.filter(c=>catTotal(c)>0);
+new Chart(document.getElementById('chartDonut'),{type:'doughnut',data:{labels:dc,datasets:[{data:dc.map(c=>catTotal(c)),backgroundColor:dc.map(c=>catColors[c]),borderWidth:2,borderColor:'#fff',hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},padding:6}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fmt(ctx.raw)}}}}});
+const maxV=top10[0].val;
+top10.forEach(({name,cat,val})=>{const color=catColors[cat]||'#00bfb3';document.getElementById('top10wrap').innerHTML+=`<div class="prog-row"><span class="prog-label" style="width:175px" title="${name}">${name}</span><div class="prog-wrap"><div class="prog-fill" style="width:${(val/maxV*100).toFixed(0)}%;--bar-color:${color}"></div></div><span class="prog-val">${fmtK(val)}</span></div>`;});
+new Chart(document.getElementById('chartFluxo'),{type:'bar',data:{labels:months,datasets:[{label:'Repasse Maxxwell',data:repasse,backgroundColor:'#006b65cc',borderRadius:4,stack:'inc'},{label:'Outras Receitas',data:otherInc,backgroundColor:'#00bfb3cc',borderRadius:4,stack:'inc'},{label:'Despesas',data:expMonthly,backgroundColor:'#ef444488',borderRadius:4,stack:'exp'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0f4f3'},ticks:{font:{size:11},callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
+const topC=cats.filter(c=>catTotal(c)>0).sort((a,b)=>catTotal(b)-catTotal(a)).slice(0,5);
+new Chart(document.getElementById('chartLine'),{type:'line',data:{labels:months,datasets:topC.map(c=>({label:c,data:catMonthly[c],borderColor:catColors[c],backgroundColor:catColors[c]+'22',borderWidth:2,pointRadius:4,tension:0.3,fill:false}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10},padding:6}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0f4f3'},ticks:{font:{size:11},callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
+const hb=cats.filter(c=>catTotal(c)>0).sort((a,b)=>catTotal(a)-catTotal(b));
+new Chart(document.getElementById('chartHBar'),{type:'bar',data:{labels:hb.map(c=>c.length>22?c.slice(0,20)+'…':c),datasets:[{data:hb.map(c=>catTotal(c)),backgroundColor:hb.map(c=>catColors[c]),borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.raw)}}},scales:{x:{grid:{color:'#f0f4f3'},ticks:{font:{size:10},callback:v=>'R$'+(v/1000).toFixed(0)+'k'}},y:{grid:{display:false},ticks:{font:{size:10}}}}}});
+const tb=document.getElementById('catTableBody');
+cats.filter(c=>catTotal(c)>0).sort((a,b)=>catTotal(b)-catTotal(a)).forEach((c,i)=>{const vals=catMonthly[c],tot=catTotal(c),pct=(tot/totalExp*100).toFixed(1);tb.innerHTML+=`<tr style="${i%2?'background:#f9fbfa':''}"><td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${catColors[c]};margin-right:6px"></span>${c}</td>${vals.map(v=>`<td class="num" style="${v===0?'color:var(--muted)':''}">${v===0?'—':fmt(v)}</td>`).join('')}<td class="num" style="font-weight:600;color:${catColors[c]}">${fmt(tot)}</td><td class="num" style="color:var(--muted)">${pct}%</td></tr>`;});
+tb.innerHTML+=`<tr style="background:#e8f5f4;font-weight:700"><td>TOTAL</td>${expMonthly.map(v=>`<td class="num">${fmt(v)}</td>`).join('')}<td class="num" style="color:var(--teal)">${fmt(totalExp)}</td><td class="num">100%</td></tr>`;
+new Chart(document.getElementById('chartMaxwell'),{type:'bar',data:{labels:months,datasets:[{label:'Repasse Maxxwell',data:repasse,backgroundColor:'#006b65cc',borderRadius:4},{label:'Total Despesas',data:expMonthly,backgroundColor:'#ef444466',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0f4f3'},ticks:{font:{size:11},callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
+new Chart(document.getElementById('chartMaxwellPie'),{type:'doughnut',data:{labels:['Salary & Wages','Facilitadores','Aluguel Sede','Cont. & Jurídico','Marketing','Logística','Infraestrutura','Mat. Didático','Tecnologia','Eu Lidero','Eventos'],datasets:[{data:[125435,41059,32649,24778,18226,14861,10163,2218,3329,1714,6783],backgroundColor:['#004f4a','#0891b2','#0e7490','#92400e','#7c3aed','#d97706','#065f46','#0284c7','#1d4ed8','#10b981','#9ca3af'],borderWidth:2,borderColor:'#fff',hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:10},padding:5}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fmt(ctx.raw)}}}}});
+new Chart(document.getElementById('chartEquipe'),{type:'bar',data:{labels:months,datasets:[{label:'Equipe Sede',data:catMonthly['Equipe Sede'],backgroundColor:'#004f4acc',borderRadius:4},{label:'Equipe Pedagógica',data:catMonthly['Equipe Pedagógica'],backgroundColor:'#006b65cc',borderRadius:4},{label:'Facilitadores',data:catMonthly['Facilitadores'],backgroundColor:'#0891b2cc',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0f4f3'},ticks:{font:{size:11},callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
+const payData={Jan:[['ADWM Tecnologia','Sistemas & Tecnologia','03/01',129.90],['Criativa Dec — Aluguel Sede','Aluguel Sede','05/01',4174.07],['Telefônica Brasil','Infraestrutura Sede','08/01',139.99],['Google Internet','Sistemas & Tecnologia','08/01',335.06],['Andrade Consultoria','Contabilidade & Jurídico','11/01',2934.30],['Velasco Comercio','Equipe Sede','15/01',6500],['Victor Raposo Romling','Equipe Sede','15/01',3000],['Márcia dos Santos Pinheiro','Equipe Pedagógica','15/01',3000],['Diego Silva Garbim','Equipe Sede','15/01',2250],['Juliana Maria Ellaro Beijo','Equipe Sede','15/01',1500],['Daniel Galdino Fonseca','Equipe Pedagógica','15/01',3000],['Planet Printer / Rita','Equipe Pedagógica','15/01',3000],['DAE - Água e Esgoto','Infraestrutura Sede','15/01',239.38],['Banco Bradesco','Contabilidade & Jurídico','15/01',202.70],['Ribeiro e Ferreira Arte','Facilitadores','15/01',1000],['Valéria Prado Campiglia','Contabilidade & Jurídico','15/01',637.50],['Omiexperience','Sistemas & Tecnologia','20/01',84.86],['Banco Safra','Contabilidade & Jurídico','20/01',499.02],['Companhia Piratininga','Infraestrutura Sede','21/01',227.94],['Claro S.A.','Infraestrutura Sede','22/01',96.58],['Hostgator Brasil','Sistemas & Tecnologia','25/01',110.98],['AUDISA Auditores','Contabilidade & Jurídico','26/01',1178.99],['Stripe Brasil','Sistemas & Tecnologia','26/01',21.18]],Fev:[['ADWM Tecnologia','Sistemas & Tecnologia','03/02',129.90],['Criativa Dec (1) — Aluguel Sede','Aluguel Sede','05/02',4174.07],['Criativa Dec (2) — Aluguel Sede','Aluguel Sede','05/02',4174.07],['Correios','Logística & Distribuição','05/02',1000],['Telefônica Brasil','Infraestrutura Sede','08/02',139.99],['Andrade Consultoria','Contabilidade & Jurídico','11/02',2934.30],['Kaylane — Mídias Sociais','Marketing','15/02',3000],['Velasco Comercio','Equipe Sede','15/02',6500],['Márcia dos Santos Pinheiro','Equipe Pedagógica','15/02',3000],['Victor Raposo Romling','Equipe Sede','15/02',3262.87],['Daniel Galdino Fonseca','Equipe Pedagógica','15/02',3000],['Giseli Figueiredo','Equipe Sede','15/02',3000],['Diego Silva Garbim','Equipe Sede','15/02',2200],['Juliana Maria Ellaro Beijo','Equipe Sede','15/02',1500],['Planet Printer / Rita','Equipe Pedagógica','15/02',3000],['Maltoni Comercial — Mat. Pedagógico','Material Didático','15/02',250],['Adriana Abrahim','Facilitadores','15/02',375],['Rodrigo Maciel','Facilitadores','15/02',500],['Genesis Farm (Raphael)','Facilitadores','15/02',125],['Valéria Prado Campiglia','Contabilidade & Jurídico','15/02',168.50],['AUDISA Auditores','Contabilidade & Jurídico','26/02',1178.99],['DAE - Água e Esgoto','Infraestrutura Sede','15/02',239.38],['Companhia Piratininga','Infraestrutura Sede','21/02',227.94],['Claro S.A.','Infraestrutura Sede','22/02',96.58]],Mar:[['ADWM Tecnologia','Sistemas & Tecnologia','03/03',129.90],['Correios','Logística & Distribuição','05/03',1533.24],['Criativa Dec — Aluguel Sede','Aluguel Sede','05/03',4844.95],['Telefônica Brasil','Infraestrutura Sede','08/03',139.99],['Andrade Consultoria','Contabilidade & Jurídico','11/03',2934.30],['Velasco Comercio','Equipe Sede','15/03',6500],['Márcia dos Santos Pinheiro','Equipe Pedagógica','15/03',3000],['Victor Raposo Romling','Equipe Sede','15/03',3000],['Daniel Galdino Fonseca','Equipe Pedagógica','15/03',3000],['Giseli Figueiredo','Equipe Sede','15/03',3172],['Diego Silva Garbim','Equipe Sede','15/03',2575],['Juliana Maria Ellaro Beijo','Equipe Sede','15/03',2190],['Alisson Ferreira — Criação de Materiais','Marketing','15/03',490],['Kaylane — Mídias Sociais','Marketing','15/03',3000],['Uniar — Ar Condicionado Sede','Infraestrutura Sede','15/03',2821.27],['Adriana Abrahim','Facilitadores','15/03',250],['Genesis Farm','Facilitadores','15/03',125],['Rodrigo Maciel','Facilitadores','15/03',250],['Silvana Perine','Facilitadores','15/03',200],['Ivanete Jesus','Facilitadores','15/03',280],['Valéria Prado Campiglia','Contabilidade & Jurídico','15/03',150],['Márcia Pinheiro — Imersão','Eventos & Programas','15/03',675],['Juliana Ellaro — Imersão','Eventos & Programas','15/03',1830],['Carla Maltoni — Imersão','Eventos & Programas','15/03',400],['AUDISA Auditores','Contabilidade & Jurídico','26/03',1178.99],['DAE - Água e Esgoto','Infraestrutura Sede','15/03',239.38],['Justa Serviços Ambientais','Infraestrutura Sede','15/03',727.65],['Reembolso Nádia — Mat. Escritório','Infraestrutura Sede','15/03',360.58]],Abr:[['ADWM Tecnologia','Sistemas & Tecnologia','03/04',129.90],['Correios','Logística & Distribuição','05/04',2198.15],['Criativa Dec — Aluguel Sede','Aluguel Sede','05/04',4844.95],['Google Internet','Sistemas & Tecnologia','08/04',150],['Andrade Consultoria','Contabilidade & Jurídico','11/04',2934.30],['Kaylane — Mídias Sociais','Marketing','15/04',3000],['Velasco Comercio','Equipe Sede','15/04',6500],['Márcia dos Santos Pinheiro','Equipe Pedagógica','15/04',3500],['Victor Raposo Romling','Equipe Sede','15/04',3000],['Daniel Galdino Fonseca','Equipe Pedagógica','15/04',3000],['Giseli Figueiredo','Equipe Sede','15/04',3200],['Diego Silva Garbim','Equipe Sede','15/04',3000],['Juliana Maria Ellaro Beijo','Equipe Sede','15/04',2460],['Planet Printer / Rita','Equipe Pedagógica','15/04',3125],['Alisson Chagas — Criação de Materiais','Marketing','15/04',2625.12],['Adriana Abrahim','Facilitadores','15/04',1375],['Rodrigo Maciel','Facilitadores','15/04',1250],['Maltoni Comercial — Mat. Pedagógico','Material Didático','15/04',299.60],['Juliana Velasco — Hotel Fundação Casa (Eu Lidero)','Eu Lidero / Projetos','15/04',1352.94],['AUDISA Auditores','Contabilidade & Jurídico','26/04',1178.99],['Valéria Prado Campiglia','Contabilidade & Jurídico','15/04',168.50],['DAE - Água e Esgoto','Infraestrutura Sede','15/04',239.38],['Companhia Piratininga','Infraestrutura Sede','21/04',227.94],['Claro S.A.','Infraestrutura Sede','22/04',96.58],['Justa Serviços Ambientais','Infraestrutura Sede','15/04',727.65],['Uniar — Ar Condicionado Sede','Infraestrutura Sede','20/04',727.65],['Pasqua Advocacia','Contabilidade & Jurídico','25/04',450],['Ministério da Fazenda','Contabilidade & Jurídico','20/04',77.26]],Mai:[['ADWM Tecnologia','Sistemas & Tecnologia','03/05',129.90],['Criativa Dec — Aluguel Sede','Aluguel Sede','05/05',5031.84],['Correios','Logística & Distribuição','05/05',1774.28],['Reembolso Thiago — Passagem Rita/Panamá','Logística & Distribuição','04/05',4418],['Kaylane — Mídias Sociais','Marketing','15/05',3000],['Telefônica Brasil','Infraestrutura Sede','08/05',139.99],['Andrade Consultoria','Contabilidade & Jurídico','11/05',2934.30],['D4Sign','Sistemas & Tecnologia','14/05',49.90],['Stripe Brasil','Sistemas & Tecnologia','11/05',197],['Velasco Comercio','Equipe Sede','15/05',6500],['Márcia dos Santos Pinheiro','Equipe Pedagógica','15/05',3000],['Victor Raposo Romling','Equipe Sede','15/05',3000],['Daniel Galdino Fonseca','Equipe Pedagógica','15/05',3000],['Giseli Figueiredo','Equipe Sede','15/05',3200],['Diego Silva Garbim','Equipe Sede','15/05',2675],['Juliana Maria Ellaro Beijo','Equipe Sede','15/05',1625],['Planet Printer / Rita','Equipe Pedagógica','15/05',3500],['Lara TJ','Facilitadores','15/05',3750],['C A Maltoni Treinamento','Facilitadores','15/05',500],['Maltoni Comercial — Mat. Pedagógico','Material Didático','15/05',1168.10],['Fernanda Rosa Brandão','Facilitadores','15/05',1125],['Valéria Prado Campiglia','Contabilidade & Jurídico','15/05',1150],['Adriana Abrahim','Facilitadores','15/05',1000],['Genesis Farm (Raphael)','Facilitadores','15/05',1000],['Ribeiro e Ferreira','Facilitadores','15/05',1000],['Rodrigo Maciel','Facilitadores','15/05',1250],['Atrios Hotéis — Evento','Eventos & Programas','18/05',3549.60],['ON TIME Express','Logística & Distribuição','19/05',3937.07],['Juliana Ellaro — Hotel Fundação Casa (Eu Lidero)','Eu Lidero / Projetos','15/05',360.58],['Reembolso Nádia — Mat. Escritório','Infraestrutura Sede','13/05',360.58],['Omiexperience','Sistemas & Tecnologia','20/05',84.86],['Ministério da Fazenda','Contabilidade & Jurídico','20/05',400],['Companhia Piratininga','Infraestrutura Sede','21/05',289.09],['Claro S.A.','Infraestrutura Sede','22/05',89.98],['Pasqua Advocacia','Contabilidade & Jurídico','25/05',1020],['AUDISA Auditores','Contabilidade & Jurídico','26/05',1178.99],['Mercado Pago','Sistemas & Tecnologia','26/05',752.01],['Banco Bradesco','Contabilidade & Jurídico','15/05',168.50],['DAE - Água e Esgoto','Infraestrutura Sede','15/05',239.38]]};
+const msel=document.getElementById('msel');
+let selMonth='Mai';
+Object.keys(payData).forEach(m=>{const b=document.createElement('button');b.className='mbtn'+(m===selMonth?' active':'');b.textContent=m+'/2026';b.onclick=()=>{document.querySelectorAll('.mbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');selMonth=m;renderPay(m);};msel.appendChild(b);});
+function renderPay(m){const data=payData[m]||[];document.getElementById('payTitle').textContent=`Lançamentos — ${m}/2026`;let total=0,maxV=0,maxN='';const body=document.getElementById('payBody');body.innerHTML='';data.sort((a,b)=>b[3]-a[3]).forEach(([nome,cat,dt,val])=>{if(val>maxV){maxV=val;maxN=nome;}total+=val;const color=catColors[cat]||'#9ca3af';body.innerHTML+=`<tr><td>${nome}</td><td><span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;background:${color}22;color:${color}">${cat}</span></td><td style="color:var(--muted);font-size:11px">${dt}</td><td class="num">${fmt(val)}</td></tr>`;});document.getElementById('pkTotal').textContent=fmt(total);document.getElementById('pkQtd').textContent=data.length;document.getElementById('pkMaior').textContent=fmt(maxV);document.getElementById('pkMaiorNome').textContent=maxN.slice(0,36)+(maxN.length>36?'…':'');}
+renderPay(selMonth);
+function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
+</script>
+</body>
+</html>
