@@ -311,7 +311,7 @@
         labels: aggregate.byStatus.slice(0, 8).map((item) => item.name),
         datasets: [{ data: aggregate.byStatus.slice(0, 8).map((item) => Math.abs(item.net) || item.paid || item.count), backgroundColor: ['#006b65', '#16a34a', '#ef4444', '#d97706', '#0891b2', '#7c3aed', '#64748b', '#84cc16'], borderWidth: 2, borderColor: '#fff' }],
       },
-      options: { ...chartOptions(), cutout: '58%' },
+      options: doughnutOptions(),
     });
 
     setChart('omieCategoryChart', horizontalBar(aggregate.byCategory.slice(0, 10), 'net'));
@@ -345,6 +345,18 @@
       maintainAspectRatio: false,
       plugins: { legend: { labels: { boxWidth: 10, font: { size: 10 }, padding: 8 } }, tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label || ctx.label}: ${money(ctx.raw)}` } } },
       scales: { x: { grid: { display: false }, ticks: { font: { size: 11 } } }, y: { grid: { color: '#f0f4f3' }, ticks: { font: { size: 11 }, callback: (value) => 'R$' + (value / 1000).toFixed(0) + 'k' } } },
+    };
+  }
+
+  function doughnutOptions() {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '58%',
+      plugins: {
+        legend: { labels: { boxWidth: 10, font: { size: 10 }, padding: 8 } },
+        tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${money(ctx.raw)}` } },
+      },
     };
   }
 
