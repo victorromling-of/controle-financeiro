@@ -156,29 +156,29 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
 <header>
   <div class="hd">
     <div class="hd-left">
-      <p class="eyebrow">Oliveira Foundation · Controle Financeiro</p>
-      <h1>Painel de <span>Caixa & Custos</span> — 2026</h1>
+      <p class="eyebrow">Oliveira Foundation · Omiê Financeiro</p>
+      <h1>Painel <span>Financeiro Integrado</span> — 2026</h1>
     </div>
     <div class="hd-right">
-      <strong>Jan–Mai 2026 · Realizado</strong>
-      Fonte: Contas a Pagar + Entradas<br>
-      Repasse Maxwell + Doações
+      <strong>Omiê Live · Dashboard</strong>
+      Movimentos financeiros + categorias<br>
+      Contas, parceiros e vencimentos
     </div>
   </div>
 </header>
 <nav class="tabs">
   <div class="tabs-inner">
-    <button class="tab active" onclick="show('visao-geral',this)">Visão Geral</button>
+    <button class="tab active" onclick="show('omie-live',this)">Omiê Live</button>
+    <button class="tab" onclick="show('visao-geral',this)">Visão Geral</button>
     <button class="tab" onclick="show('custos',this)">Centros de Custo</button>
     <button class="tab" onclick="show('maxwell',this)">Maxwell Foundation</button>
     <button class="tab" onclick="show('equipe',this)">Equipe & Facilitadores</button>
     <button class="tab" onclick="show('pagamentos',this)">Pagamentos</button>
-    <button class="tab" onclick="show('omie-live',this)">Omiê Live</button>
     <button class="tab" onclick="show('recomendacoes',this)">Recomendações</button>
   </div>
 </nav>
 <main>
-<div class="section active" id="visao-geral">
+<div class="section" id="visao-geral">
   <div class="kpi-row">
     <div class="kpi" style="--kpi-accent:var(--teal)"><p class="kpi-label">Total Despesas Jan–Mai</p><p class="kpi-val">R$ 271k</p><p class="kpi-sub">271.247 realizados · 5 meses</p></div>
     <div class="kpi" style="--kpi-accent:#10b981"><p class="kpi-label">Total Receitas Jan–Mai</p><p class="kpi-val">R$ 960k</p><p class="kpi-sub">Maxxwell + doações + clientes</p></div>
@@ -292,7 +292,7 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
   </div>
   <div class="card"><div class="card-hd"><div><p class="card-title" id="payTitle">Lançamentos</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Fornecedor / Descrição</th><th>Centro de Custo</th><th>Venc.</th><th style="text-align:right">Valor</th></tr></thead><tbody id="payBody"></tbody></table></div></div>
 </div>
-<div class="section" id="omie-live">
+<div class="section active" id="omie-live">
   <div class="omie-shell">
     <aside class="omie-sidebar">
       <div class="omie-brand">
