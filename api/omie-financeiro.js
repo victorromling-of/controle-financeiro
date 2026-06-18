@@ -1,3 +1,5 @@
+const { requireSession } = require('./_auth');
+
 const OMIE_ENDPOINTS = {
   movements: 'https://app.omie.com.br/api/v1/financas/mf/',
   categories: 'https://app.omie.com.br/api/v1/geral/categorias/',
@@ -19,6 +21,10 @@ module.exports = async function handler(req, res) {
   if (req.method && req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     res.status(405).json({ ok: false, error: 'Metodo nao permitido.' });
+    return;
+  }
+
+  if (!requireSession(req, res)) {
     return;
   }
 
