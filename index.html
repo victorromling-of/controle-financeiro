@@ -112,6 +112,44 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
 .omie-pill.warn{background:#fef3c7;color:#92400e}
 .omie-mini{font-size:10.5px;color:var(--muted);margin-top:3px}
 .omie-empty{font-size:11.5px;color:var(--muted);padding:10px 0}
+.omie-shell{display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+@media(min-width:980px){.omie-shell{grid-template-columns:220px minmax(0,1fr)}}
+.omie-sidebar{background:#fff;border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:12px;position:sticky;top:58px}
+.omie-brand{border-bottom:1px solid var(--border);padding:4px 4px 12px;margin-bottom:8px}
+.omie-brand-kicker{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:3px}
+.omie-brand h2{font-size:17px;line-height:1.2;margin-bottom:4px}
+.omie-brand p:last-child{font-size:10.5px;color:var(--muted)}
+.omie-nav{width:100%;border:0;background:transparent;color:var(--soft);font-size:12px;font-weight:600;text-align:left;padding:9px 10px;border-radius:7px;cursor:pointer}
+.omie-nav.active,.omie-nav:hover{background:#e8f5f4;color:var(--teal)}
+.omie-work{min-width:0}
+.omie-topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.omie-topbar h2{font-size:18px;margin-bottom:2px}
+.omie-topbar p{font-size:11.5px;color:var(--muted)}
+.omie-refresh{border:1px solid var(--teal);background:var(--teal);color:#fff;border-radius:7px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.omie-refresh:disabled{opacity:.55;cursor:progress}
+.omie-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:10px;box-shadow:var(--shadow)}
+@media(min-width:820px){.omie-filters{grid-template-columns:90px 130px 130px minmax(120px,1fr) minmax(160px,1.3fr) minmax(140px,1fr) minmax(180px,1.2fr)}}
+.omie-filters label{display:flex;flex-direction:column;gap:4px;min-width:0}
+.omie-filters span{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.omie-filters input,.omie-filters select{width:100%;border:1px solid var(--border);background:#f9fbfa;border-radius:7px;padding:8px 9px;font-size:12px;color:var(--ink);min-height:34px}
+.omie-search{grid-column:1/-1}
+@media(min-width:820px){.omie-search{grid-column:auto}}
+.omie-months{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.omie-month{border:1px solid var(--border);background:#fff;color:var(--soft);border-radius:18px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;min-width:44px}
+.omie-month.active{background:var(--teal);border-color:var(--teal);color:#fff}
+.omie-view{display:none}.omie-view.active{display:block}
+.omie-kpis{margin-bottom:14px}
+.omie-grid-2{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+@media(min-width:900px){.omie-grid-2{grid-template-columns:3fr 2fr}}
+.omie-grid-3{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+@media(min-width:760px){.omie-grid-3{grid-template-columns:repeat(3,1fr)}}
+.omie-chart{height:280px}
+.omie-big{font-family:'DM Mono',monospace;font-size:25px;line-height:1;margin:10px 0 6px;color:var(--teal)}
+.omie-meta{display:grid;grid-template-columns:1fr;gap:8px;font-size:12px;color:var(--soft)}
+@media(min-width:700px){.omie-meta{grid-template-columns:repeat(2,1fr)}}
+.omie-meta div{border:1px solid var(--border);background:#f9fbfa;border-radius:7px;padding:10px}
+.omie-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:#e8f5f4;color:var(--teal);white-space:nowrap}
+.omie-tag.red{background:#fee2e2;color:#991b1b}.omie-tag.green{background:#dcfce7;color:#166534}.omie-tag.amber{background:#fef3c7;color:#92400e}.omie-tag.blue{background:#dbeafe;color:#1e40af}
 </style>
 </head>
 <body>
@@ -255,21 +293,84 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
   <div class="card"><div class="card-hd"><div><p class="card-title" id="payTitle">Lançamentos</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Fornecedor / Descrição</th><th>Centro de Custo</th><th>Venc.</th><th style="text-align:right">Valor</th></tr></thead><tbody id="payBody"></tbody></table></div></div>
 </div>
 <div class="section" id="omie-live">
-  <div class="sec-hd"><h2>Omiê Live</h2><p>Resumo financeiro por vencimento em <span id="omieYear">2026</span> · <span id="omieUpdated">aguardando sincronização</span></p></div>
-  <div class="omie-state" id="omieStatus">Carregando dados da Omiê...</div>
-  <div class="kpi-row">
-    <div class="kpi" style="--kpi-accent:var(--teal)"><p class="kpi-label">Contas a Pagar</p><p class="kpi-val" id="omiePagarTotal">—</p><p class="kpi-sub" id="omiePagarSub">—</p></div>
-    <div class="kpi" style="--kpi-accent:#10b981"><p class="kpi-label">Contas a Receber</p><p class="kpi-val" id="omieReceberTotal">—</p><p class="kpi-sub" id="omieReceberSub">—</p></div>
-    <div class="kpi" style="--kpi-accent:var(--lime)"><p class="kpi-label">Saldo do Período</p><p class="kpi-val" id="omieSaldoTotal">—</p><p class="kpi-sub">Receber menos pagar</p></div>
-    <div class="kpi" style="--kpi-accent:#ef4444"><p class="kpi-label">Em Aberto Vencido</p><p class="kpi-val" id="omieVencidoTotal">—</p><p class="kpi-sub" id="omieVencidoSub">—</p></div>
-  </div>
-  <div class="g2">
-    <div class="card"><div class="card-hd"><div><p class="card-title">Fluxo Mensal Omiê</p><p class="card-sub">Contas por mês de vencimento · R$</p></div></div><div class="chart-wrap" style="height:250px"><canvas id="omieFluxo"></canvas></div></div>
-    <div class="card"><div class="card-hd"><div><p class="card-title">Status dos Títulos</p><p class="card-sub">Total por status no ano</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Origem</th><th>Status</th><th>Qtd.</th><th style="text-align:right">Valor</th></tr></thead><tbody id="omieStatusBody"><tr><td colspan="4" class="omie-empty">—</td></tr></tbody></table></div></div>
-  </div>
-  <div class="g2r">
-    <div class="card"><div class="card-hd"><div><p class="card-title">Categorias com Maior Impacto</p><p class="card-sub">Diferença entre receber e pagar</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Categoria</th><th>Qtd.</th><th style="text-align:right">Pagar</th><th style="text-align:right">Receber</th><th style="text-align:right">Saldo</th></tr></thead><tbody id="omieCategoriasBody"><tr><td colspan="5" class="omie-empty">—</td></tr></tbody></table></div></div>
-    <div class="card"><div class="card-hd"><div><p class="card-title">Próximos Vencimentos</p><p class="card-sub">Títulos em aberto ordenados por data</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Tipo</th><th>Venc.</th><th>Categoria</th><th>Status</th><th style="text-align:right">Valor</th></tr></thead><tbody id="omieVencimentosBody"><tr><td colspan="5" class="omie-empty">—</td></tr></tbody></table></div></div>
+  <div class="omie-shell">
+    <aside class="omie-sidebar">
+      <div class="omie-brand">
+        <p class="omie-brand-kicker">Omiê Live</p>
+        <h2>Financeiro</h2>
+        <p id="omieUpdated">Aguardando sincronização</p>
+      </div>
+      <button class="omie-nav active" data-omie-view="overview">Visão Geral</button>
+      <button class="omie-nav" data-omie-view="flow">Fluxo</button>
+      <button class="omie-nav" data-omie-view="categories">Categorias</button>
+      <button class="omie-nav" data-omie-view="titles">Títulos</button>
+      <button class="omie-nav" data-omie-view="partners">Parceiros</button>
+      <button class="omie-nav" data-omie-view="accounts">Contas</button>
+      <button class="omie-nav" data-omie-view="data">Dados</button>
+    </aside>
+    <section class="omie-work">
+      <div class="omie-topbar">
+        <div>
+          <h2>Omiê Live</h2>
+          <p id="omieScope">Movimentos financeiros · 2026</p>
+        </div>
+        <button class="omie-refresh" id="omieRefresh" type="button">Atualizar</button>
+      </div>
+      <div class="omie-state" id="omieStatus">Carregando dados da Omiê...</div>
+      <div class="omie-filters">
+        <label><span>Ano</span><input id="omieYear" type="number" min="2020" max="2035" value="2026"></label>
+        <label><span>Base</span><select id="omieDateField"><option value="vencimento">Vencimento</option><option value="emissao">Emissão</option><option value="pagamento">Pagamento</option><option value="previsao">Previsão</option><option value="registro">Registro</option></select></label>
+        <label><span>Natureza</span><select id="omieNature"><option value="">Todas</option><option value="P">Pagar</option><option value="R">Receber</option></select></label>
+        <label><span>Status</span><select id="omieStatusFilter"><option value="">Todos</option></select></label>
+        <label><span>Categoria</span><select id="omieCategoryFilter"><option value="">Todas</option></select></label>
+        <label><span>Conta</span><select id="omieAccountFilter"><option value="">Todas</option></select></label>
+        <label class="omie-search"><span>Buscar</span><input id="omieSearch" type="search" placeholder="Nome, categoria, status"></label>
+      </div>
+      <div class="omie-months" id="omieMonths"></div>
+      <div class="omie-view active" data-omie-panel="overview">
+        <div class="kpi-row omie-kpis">
+          <div class="kpi" style="--kpi-accent:#0f766e"><p class="kpi-label">Contas a Pagar</p><p class="kpi-val" id="omiePagarTotal">—</p><p class="kpi-sub" id="omiePagarSub">—</p></div>
+          <div class="kpi" style="--kpi-accent:#16a34a"><p class="kpi-label">Contas a Receber</p><p class="kpi-val" id="omieReceberTotal">—</p><p class="kpi-sub" id="omieReceberSub">—</p></div>
+          <div class="kpi" style="--kpi-accent:#84cc16"><p class="kpi-label">Saldo Filtrado</p><p class="kpi-val" id="omieSaldoTotal">—</p><p class="kpi-sub" id="omieSaldoSub">—</p></div>
+          <div class="kpi" style="--kpi-accent:#ef4444"><p class="kpi-label">Em Aberto</p><p class="kpi-val" id="omieAbertoTotal">—</p><p class="kpi-sub" id="omieAbertoSub">—</p></div>
+        </div>
+        <div class="omie-grid-2">
+          <div class="card"><div class="card-hd"><div><p class="card-title">Fluxo Mensal</p><p class="card-sub">Pagar, receber e saldo</p></div></div><div class="chart-wrap omie-chart"><canvas id="omieFluxo"></canvas></div></div>
+          <div class="card"><div class="card-hd"><div><p class="card-title">Status</p><p class="card-sub">Distribuição por valor</p></div></div><div class="chart-wrap omie-chart"><canvas id="omieStatusChart"></canvas></div></div>
+        </div>
+        <div class="omie-grid-2">
+          <div class="card"><div class="card-hd"><div><p class="card-title">Top Categorias</p><p class="card-sub">Maior impacto financeiro</p></div></div><div class="chart-wrap omie-chart"><canvas id="omieCategoryChart"></canvas></div></div>
+          <div class="card"><div class="card-hd"><div><p class="card-title">Top Parceiros</p><p class="card-sub">Clientes e fornecedores</p></div></div><div class="chart-wrap omie-chart"><canvas id="omiePartnerChart"></canvas></div></div>
+        </div>
+      </div>
+      <div class="omie-view" data-omie-panel="flow">
+        <div class="omie-grid-2">
+          <div class="card"><div class="card-hd"><div><p class="card-title">Saldo Acumulado</p><p class="card-sub">Resultado mês a mês</p></div></div><div class="chart-wrap omie-chart"><canvas id="omieCumulativeChart"></canvas></div></div>
+          <div class="card"><div class="card-hd"><div><p class="card-title">Aberto x Realizado</p><p class="card-sub">Baixas e pendências</p></div></div><div class="chart-wrap omie-chart"><canvas id="omieOpenPaidChart"></canvas></div></div>
+        </div>
+        <div class="card"><div class="card-hd"><div><p class="card-title">Resumo Mensal</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Mês</th><th>Qtd.</th><th style="text-align:right">Pagar</th><th style="text-align:right">Receber</th><th style="text-align:right">Aberto</th><th style="text-align:right">Saldo</th></tr></thead><tbody id="omieMonthlyBody"></tbody></table></div></div>
+      </div>
+      <div class="omie-view" data-omie-panel="categories">
+        <div class="card"><div class="card-hd"><div><p class="card-title">Categorias</p><p class="card-sub">Ranking por impacto</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Categoria</th><th>Qtd.</th><th style="text-align:right">Pagar</th><th style="text-align:right">Receber</th><th style="text-align:right">Aberto</th><th style="text-align:right">Saldo</th></tr></thead><tbody id="omieCategoriasBody"></tbody></table></div></div>
+      </div>
+      <div class="omie-view" data-omie-panel="titles">
+        <div class="card"><div class="card-hd"><div><p class="card-title">Títulos</p><p class="card-sub" id="omieTitleCount">—</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Data</th><th>Tipo</th><th>Parceiro</th><th>Categoria</th><th>Status</th><th style="text-align:right">Valor</th><th style="text-align:right">Aberto</th></tr></thead><tbody id="omieTitlesBody"></tbody></table></div></div>
+      </div>
+      <div class="omie-view" data-omie-panel="partners">
+        <div class="card"><div class="card-hd"><div><p class="card-title">Parceiros</p><p class="card-sub">Clientes e fornecedores com movimentação</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Parceiro</th><th>Qtd.</th><th style="text-align:right">Pagar</th><th style="text-align:right">Receber</th><th style="text-align:right">Aberto</th><th style="text-align:right">Saldo</th></tr></thead><tbody id="omiePartnersBody"></tbody></table></div></div>
+      </div>
+      <div class="omie-view" data-omie-panel="accounts">
+        <div class="card"><div class="card-hd"><div><p class="card-title">Contas Correntes</p><p class="card-sub">Contas cadastradas e movimento filtrado</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Conta</th><th>Banco</th><th>Tipo</th><th style="text-align:right">Saldo Inicial</th><th style="text-align:right">Movimento</th><th>Status</th></tr></thead><tbody id="omieAccountsBody"></tbody></table></div></div>
+      </div>
+      <div class="omie-view" data-omie-panel="data">
+        <div class="omie-grid-3">
+          <div class="card"><p class="card-title">Movimentos</p><p class="omie-big" id="omieDataMovements">—</p><p class="card-sub">Base financeira carregada</p></div>
+          <div class="card"><p class="card-title">Categorias</p><p class="omie-big" id="omieDataCategories">—</p><p class="card-sub">Cadastro auxiliar</p></div>
+          <div class="card"><p class="card-title">Parceiros</p><p class="omie-big" id="omieDataClients">—</p><p class="card-sub">Clientes e fornecedores</p></div>
+        </div>
+        <div class="card"><div class="card-hd"><div><p class="card-title">Carga Atual</p></div></div><div id="omieDataMeta" class="omie-meta"></div></div>
+      </div>
+    </section>
   </div>
 </div>
 <div class="section" id="recomendacoes">
@@ -334,71 +435,8 @@ let selMonth='Mai';
 Object.keys(payData).forEach(m=>{const b=document.createElement('button');b.className='mbtn'+(m===selMonth?' active':'');b.textContent=m+'/2026';b.onclick=()=>{document.querySelectorAll('.mbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');selMonth=m;renderPay(m);};msel.appendChild(b);});
 function renderPay(m){const data=payData[m]||[];document.getElementById('payTitle').textContent=`Lançamentos — ${m}/2026`;let total=0,maxV=0,maxN='';const body=document.getElementById('payBody');body.innerHTML='';data.sort((a,b)=>b[3]-a[3]).forEach(([nome,cat,dt,val])=>{if(val>maxV){maxV=val;maxN=nome;}total+=val;const color=catColors[cat]||'#9ca3af';body.innerHTML+=`<tr><td>${nome}</td><td><span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;background:${color}22;color:${color}">${cat}</span></td><td style="color:var(--muted);font-size:11px">${dt}</td><td class="num">${fmt(val)}</td></tr>`;});document.getElementById('pkTotal').textContent=fmt(total);document.getElementById('pkQtd').textContent=data.length;document.getElementById('pkMaior').textContent=fmt(maxV);document.getElementById('pkMaiorNome').textContent=maxN.slice(0,36)+(maxN.length>36?'…':'');}
 renderPay(selMonth);
-let omieLoaded=false;
-let omieLoading=false;
-let omieFluxoChart=null;
-async function loadOmie(){
-  if(omieLoaded||omieLoading)return;
-  omieLoading=true;
-  const status=document.getElementById('omieStatus');
-  status.className='omie-state';
-  status.textContent='Carregando dados da Omiê...';
-  try{
-    const res=await fetch('/api/omie-financeiro?ano=2026');
-    const data=await res.json();
-    if(!res.ok||!data.ok)throw new Error(data.detail||data.error||'Falha ao carregar dados.');
-    renderOmie(data);
-    omieLoaded=true;
-    status.textContent=`Sincronizado com ${data.counts.payable.toLocaleString('pt-BR')} contas a pagar, ${data.counts.receivable.toLocaleString('pt-BR')} contas a receber e ${data.counts.categories.toLocaleString('pt-BR')} categorias.`;
-  }catch(err){
-    status.className='omie-state error';
-    status.textContent='Não foi possível carregar os dados da Omiê agora. '+err.message;
-  }finally{
-    omieLoading=false;
-  }
-}
-function renderOmie(data){
-  document.getElementById('omieYear').textContent=data.year;
-  document.getElementById('omieUpdated').textContent='atualizado em '+new Date(data.generatedAt).toLocaleString('pt-BR');
-  document.getElementById('omiePagarTotal').textContent=fmtShort(data.totals.payable);
-  document.getElementById('omiePagarSub').textContent=`${data.counts.payableInYear.toLocaleString('pt-BR')} títulos no ano · ${fmtShort(data.totals.payableOpen)} em aberto`;
-  document.getElementById('omieReceberTotal').textContent=fmtShort(data.totals.receivable);
-  document.getElementById('omieReceberSub').textContent=`${data.counts.receivableInYear.toLocaleString('pt-BR')} títulos no ano · ${fmtShort(data.totals.receivableOpen)} em aberto`;
-  document.getElementById('omieSaldoTotal').textContent=fmtShort(data.totals.net);
-  document.getElementById('omieSaldoTotal').style.color=data.totals.net>=0?'var(--teal)':'#ef4444';
-  document.getElementById('omieVencidoTotal').textContent=fmtShort(data.totals.overduePayable+data.totals.overdueReceivable);
-  document.getElementById('omieVencidoSub').textContent=`Pagar ${fmtShort(data.totals.overduePayable)} · receber ${fmtShort(data.totals.overdueReceivable)}`;
-  renderOmieFluxo(data.monthly);
-  renderOmieStatus(data.byStatus);
-  renderOmieCategorias(data.byCategory);
-  renderOmieVencimentos(data.upcoming);
-}
-function renderOmieFluxo(monthly){
-  const canvas=document.getElementById('omieFluxo');
-  if(omieFluxoChart)omieFluxoChart.destroy();
-  omieFluxoChart=new Chart(canvas,{type:'bar',data:{labels:monthly.map(m=>m.label),datasets:[{label:'A pagar',data:monthly.map(m=>m.payable),backgroundColor:'#ef444488',borderRadius:4},{label:'A receber',data:monthly.map(m=>m.receivable),backgroundColor:'#10b981aa',borderRadius:4},{label:'Saldo',type:'line',data:monthly.map(m=>m.balance),borderColor:'#006b65',backgroundColor:'#006b6522',borderWidth:2,pointRadius:4,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0f4f3'},ticks:{font:{size:11},callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
-}
-function renderOmieStatus(byStatus){
-  const rows=[
-    ...(byStatus.payable||[]).map(x=>({...x,type:'Pagar'})),
-    ...(byStatus.receivable||[]).map(x=>({...x,type:'Receber'}))
-  ].sort((a,b)=>b.total-a.total);
-  const body=document.getElementById('omieStatusBody');
-  body.innerHTML=rows.length?rows.map(row=>`<tr><td>${row.type}</td><td><span class="omie-pill">${escapeHtml(row.status)}</span></td><td class="num">${row.count.toLocaleString('pt-BR')}</td><td class="num">${fmt(row.total)}</td></tr>`).join(''):'<tr><td colspan="4" class="omie-empty">Sem dados no período.</td></tr>';
-}
-function renderOmieCategorias(items){
-  const body=document.getElementById('omieCategoriasBody');
-  body.innerHTML=items.length?items.map(item=>`<tr><td><strong style="color:var(--ink);font-weight:600">${escapeHtml(item.name)}</strong><div class="omie-mini">${escapeHtml(item.code)}</div></td><td class="num">${item.count.toLocaleString('pt-BR')}</td><td class="num">${fmt(item.payable)}</td><td class="num">${fmt(item.receivable)}</td><td class="num" style="color:${item.balance>=0?'var(--teal)':'#ef4444'};font-weight:600">${fmt(item.balance)}</td></tr>`).join(''):'<tr><td colspan="5" class="omie-empty">Sem categorias no período.</td></tr>';
-}
-function renderOmieVencimentos(upcoming){
-  const rows=[
-    ...((upcoming.payable||[]).map(x=>({...x,type:'Pagar'}))),
-    ...((upcoming.receivable||[]).map(x=>({...x,type:'Receber'})))
-  ].sort((a,b)=>a.dueDate.split('/').reverse().join('').localeCompare(b.dueDate.split('/').reverse().join(''))).slice(0,12);
-  const body=document.getElementById('omieVencimentosBody');
-  body.innerHTML=rows.length?rows.map(row=>`<tr><td>${row.type}</td><td>${escapeHtml(row.dueDate)}</td><td>${escapeHtml(row.category)}</td><td><span class="omie-pill ${row.overdue?'warn':''}">${escapeHtml(row.status)}</span></td><td class="num">${fmt(row.value)}</td></tr>`).join(''):'<tr><td colspan="5" class="omie-empty">Sem vencimentos em aberto.</td></tr>';
-}
-function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');if(id==='omie-live')loadOmie();}
+function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');if(id==='omie-live'&&window.omieLive)window.omieLive.ensureLoaded();}
 </script>
+<script src="/assets/omie-live.js"></script>
 </body>
 </html>
