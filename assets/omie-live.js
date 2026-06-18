@@ -11,12 +11,23 @@
     slate: '#475569',
   };
 
+  const DEFAULT_SORTS = {
+    titles: { key: 'date', dir: 'desc' },
+    categories: { key: 'net', dir: 'desc' },
+    partners: { key: 'net', dir: 'desc' },
+    accounts: { key: 'name', dir: 'asc' },
+    monthly: { key: 'month', dir: 'asc' },
+  };
+  const NUMERIC_KEYS = new Set(['count', 'payable', 'receivable', 'open', 'net', 'amount', 'openAmount', 'paidAmount', 'initialBalance', 'month']);
+
   const state = {
     data: null,
     loaded: false,
     loading: false,
     months: new Set(ALL_MONTHS),
     charts: {},
+    showUnpaid: false,
+    sort: JSON.parse(JSON.stringify(DEFAULT_SORTS)),
   };
 
   const $ = (id) => document.getElementById(id);
@@ -109,6 +120,72 @@
       $(id).addEventListener('change', render);
     });
     $('omieSearch').addEventListener('input', render);
+    const unpaid = $('omieShowUnpaid');
+    if (unpaid) {
+      unpaid.checked = state.showUnpaid;
+      unpaid.addEventListener('change', () => {
+        state.showUnpaid = unpaid.checked;
+        render();
+      });
+    }
+    setupSortableHeaders();
+  }
+
+  function setupSortableHeaders() {
+    document.querySelectorAll('[data-sort-table]').forEach((table) => {
+      const name = table.dataset.sortTable;
+      if (!state.sort[name]) return;
+      table.querySelectorAll('th[data-k]').forEach((th) => {
+        th.classList.add('omie-sortable');
+        th.dataset.label = th.textContent.trim();
+        th.addEventListener('click', () => {
+          const sort = state.sort[name];
+          const key = th.dataset.k;
+          if (sort.key === key) {
+            sort.dir = sort.dir === 'asc' ? 'desc' : 'asc';
+          } else {
+            sort.key = key;
+            sort.dir = (NUMERIC_KEYS.has(key) || key === 'date') ? 'desc' : 'asc';
+          }
+          render();
+        });
+      });
+    });
+  }
+
+  function compareRows(a, b, key) {
+    if (key === 'date') return String(a.dateISO || '').localeCompare(String(b.dateISO || ''));
+    if (NUMERIC_KEYS.has(key)) return (Number(a[key]) || 0) - (Number(b[key]) || 0);
+    return normalize(String(a[key] ?? '')).localeCompare(normalize(String(b[key] ?? '')), 'pt-BR');
+  }
+
+  function applySort(rows, name) {
+    const sort = state.sort[name];
+    if (!sort) return rows;
+    const sorted = [...rows].sort((a, b) => compareRows(a, b, sort.key));
+    if (sort.dir === 'desc') sorted.reverse();
+    return sorted;
+  }
+
+  function updateSortArrows(name) {
+    const table = document.querySelector(`[data-sort-table="${name}"]`);
+    if (!table) return;
+    const sort = state.sort[name];
+    table.querySelectorAll('th[data-k]').forEach((th) => {
+      const active = th.dataset.k === sort.key;
+      th.classList.toggle('sorted', active);
+      th.textContent = th.dataset.label || th.textContent.trim();
+      if (active) {
+        const arrow = document.createElement('span');
+        arrow.className = 'sort-arrow';
+        arrow.textContent = sort.dir === 'asc' ? '▲' : '▼';
+        th.appendChild(arrow);
+      }
+    });
+  }
+
+  function isPaidRow(row) {
+    return row.isLiquidated === true || (Number(row.paidAmount) > 0 && Number(row.openAmount) <= 0);
   }
 
   function buildMonths() {
@@ -182,11 +259,14 @@
     const account = $('omieAccountFilter').value;
     const search = normalize($('omieSearch').value);
 
+    const statusIsSpecific = status && status !== '__ACTIVE__';
+
     return state.data.movements.filter((row) => {
       if (!state.months.has(row.month)) return false;
+      if (!state.showUnpaid && !statusIsSpecific && !isPaidRow(row)) return false;
       if (nature && row.nature !== nature) return false;
       if (status === '__ACTIVE__' && row.status === 'CANCELADO') return false;
-      if (status && status !== '__ACTIVE__' && row.status !== status) return false;
+      if (statusIsSpecific && row.status !== status) return false;
       if (category && row.categoryCode !== category) return false;
       if (account && row.accountId !== account) return false;
       if (search && !normalize([row.clientName, row.categoryName, row.status, row.accountName, row.type].join(' ')).includes(search)) return false;
@@ -373,34 +453,49 @@
 
   function renderTables(rows, aggregate) {
     renderMonthly(aggregate.monthly);
-    renderGroupTable('omieCategoriasBody', aggregate.byCategory, 'Categoria');
-    renderGroupTable('omiePartnersBody', aggregate.byPartner, 'Parceiro');
+    renderGroupTable('omieCategoriasBody', aggregate.byCategory, 'Categoria', 'categories');
+    renderGroupTable('omiePartnersBody', aggregate.byPartner, 'Parceiro', 'partners');
     renderTitles(rows);
     renderAccounts(aggregate.byAccount);
   }
 
   function renderMonthly(monthly) {
-    $('omieMonthlyBody').innerHTML = monthly.map((item) => `<tr><td>${item.label}</td><td class="num">${number(item.count)}</td><td class="num">${money(item.payable)}</td><td class="num">${money(item.receivable)}</td><td class="num">${money(item.open)}</td><td class="num" style="color:${item.net >= 0 ? 'var(--teal)' : '#ef4444'};font-weight:700">${money(item.net)}</td></tr>`).join('');
+    const sorted = applySort(monthly, 'monthly');
+    $('omieMonthlyBody').innerHTML = sorted.map((item) => `<tr><td>${item.label}</td><td class="num">${number(item.count)}</td><td class="num">${money(item.payable)}</td><td class="num">${money(item.receivable)}</td><td class="num">${money(item.open)}</td><td class="num" style="color:${item.net >= 0 ? 'var(--teal)' : '#ef4444'};font-weight:700">${money(item.net)}</td></tr>`).join('');
+    updateSortArrows('monthly');
   }
 
-  function renderGroupTable(id, rows, label) {
+  function renderGroupTable(id, rows, label, name) {
     const body = $(id);
-    body.innerHTML = rows.length ? rows.slice(0, 60).map((item) => `<tr><td><strong style="color:var(--ink);font-weight:600">${esc(item.name || label)}</strong><div class="omie-mini">${esc(item.code)}</div></td><td class="num">${number(item.count)}</td><td class="num">${money(item.payable)}</td><td class="num">${money(item.receivable)}</td><td class="num">${money(item.open)}</td><td class="num" style="color:${item.net >= 0 ? 'var(--teal)' : '#ef4444'};font-weight:700">${money(item.net)}</td></tr>`).join('') : `<tr><td colspan="6" class="omie-empty">Sem registros.</td></tr>`;
+    const sorted = applySort(rows, name);
+    body.innerHTML = sorted.length ? sorted.slice(0, 60).map((item) => `<tr><td><strong style="color:var(--ink);font-weight:600">${esc(item.name || label)}</strong><div class="omie-mini">${esc(item.code)}</div></td><td class="num">${number(item.count)}</td><td class="num">${money(item.payable)}</td><td class="num">${money(item.receivable)}</td><td class="num">${money(item.open)}</td><td class="num" style="color:${item.net >= 0 ? 'var(--teal)' : '#ef4444'};font-weight:700">${money(item.net)}</td></tr>`).join('') : `<tr><td colspan="6" class="omie-empty">Sem registros.</td></tr>`;
+    updateSortArrows(name);
   }
 
   function renderTitles(rows) {
-    const sorted = [...rows].sort((a, b) => (a.dateISO || '').localeCompare(b.dateISO || '') || Math.abs(b.amount) - Math.abs(a.amount));
+    const sorted = applySort(rows, 'titles');
     $('omieTitleCount').textContent = `${number(sorted.length)} títulos filtrados`;
     $('omieTitlesBody').innerHTML = sorted.slice(0, 250).map((row) => `<tr><td>${esc(row.date)}</td><td>${tag(row.natureLabel, row.nature === 'R' ? 'green' : 'red')}</td><td>${esc(row.clientName)}</td><td>${esc(row.categoryName)}<div class="omie-mini">${esc(row.accountName)}</div></td><td>${tag(row.status, statusClass(row.status))}</td><td class="num">${money(row.amount)}</td><td class="num">${money(row.openAmount)}</td></tr>`).join('') || '<tr><td colspan="7" class="omie-empty">Sem títulos.</td></tr>';
+    updateSortArrows('titles');
   }
 
   function renderAccounts(accountGroups) {
     const movementMap = new Map(accountGroups.map((item) => [String(item.code), item]));
-    $('omieAccountsBody').innerHTML = state.data.accounts.map((account) => {
+    const rows = state.data.accounts.map((account) => {
       const movement = movementMap.get(String(account.id));
-      const net = movement ? movement.net : 0;
-      return `<tr><td><strong style="color:var(--ink);font-weight:600">${esc(account.name)}</strong><div class="omie-mini">${esc(account.id)}</div></td><td>${esc(account.bank || '—')}</td><td>${esc(account.type || '—')}</td><td class="num">${money(account.initialBalance)}</td><td class="num" style="color:${net >= 0 ? 'var(--teal)' : '#ef4444'};font-weight:700">${money(net)}</td><td>${tag(account.inactive ? 'INATIVA' : account.blocked ? 'BLOQUEADA' : 'ATIVA', account.inactive || account.blocked ? 'amber' : 'green')}</td></tr>`;
-    }).join('');
+      return {
+        account,
+        name: account.name || '',
+        bank: account.bank || '',
+        type: account.type || '',
+        initialBalance: Number(account.initialBalance) || 0,
+        net: movement ? movement.net : 0,
+        statusText: account.inactive ? 'INATIVA' : account.blocked ? 'BLOQUEADA' : 'ATIVA',
+      };
+    });
+    const sorted = applySort(rows, 'accounts');
+    $('omieAccountsBody').innerHTML = sorted.map(({ account, net, statusText }) => `<tr><td><strong style="color:var(--ink);font-weight:600">${esc(account.name)}</strong><div class="omie-mini">${esc(account.id)}</div></td><td>${esc(account.bank || '—')}</td><td>${esc(account.type || '—')}</td><td class="num">${money(account.initialBalance)}</td><td class="num" style="color:${net >= 0 ? 'var(--teal)' : '#ef4444'};font-weight:700">${money(net)}</td><td>${tag(statusText, statusText === 'ATIVA' ? 'green' : 'amber')}</td></tr>`).join('');
+    updateSortArrows('accounts');
   }
 
   function renderMeta(rows) {

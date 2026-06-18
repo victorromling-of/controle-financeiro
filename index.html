@@ -61,6 +61,10 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tr:hover td{background:#f9fbfa}
 .tbl td.num{font-family:'DM Mono',monospace;font-size:11px;text-align:right;color:var(--ink);white-space:nowrap}
+.tbl th.omie-sortable{cursor:pointer;user-select:none;white-space:nowrap}
+.tbl th.omie-sortable:hover{color:var(--teal)}
+.tbl th.sorted{color:var(--teal)}
+.sort-arrow{font-size:8px;margin-left:3px;vertical-align:middle}
 .sec-hd{margin-bottom:18px}
 .sec-hd h2{font-size:16px;font-weight:700;margin-bottom:3px}
 .sec-hd p{font-size:12px;color:var(--muted)}
@@ -128,12 +132,15 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
 .omie-refresh{border:1px solid var(--teal);background:var(--teal);color:#fff;border-radius:7px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer}
 .omie-refresh:disabled{opacity:.55;cursor:progress}
 .omie-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:10px;box-shadow:var(--shadow)}
-@media(min-width:820px){.omie-filters{grid-template-columns:90px 130px 130px minmax(120px,1fr) minmax(160px,1.3fr) minmax(140px,1fr) minmax(180px,1.2fr)}}
+@media(min-width:560px){.omie-filters{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:900px){.omie-filters{grid-template-columns:repeat(6,minmax(0,1fr))}}
 .omie-filters label{display:flex;flex-direction:column;gap:4px;min-width:0}
 .omie-filters span{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.omie-filters input,.omie-filters select{width:100%;border:1px solid var(--border);background:#f9fbfa;border-radius:7px;padding:8px 9px;font-size:12px;color:var(--ink);min-height:34px}
+.omie-filters input,.omie-filters select{width:100%;max-width:100%;border:1px solid var(--border);background:#f9fbfa;border-radius:7px;padding:8px 9px;font-size:12px;color:var(--ink);min-height:34px}
 .omie-search{grid-column:1/-1}
-@media(min-width:820px){.omie-search{grid-column:auto}}
+.omie-paid{grid-column:1/-1;flex-direction:row!important;align-items:center;gap:8px;background:#f0fdfa;border:1px solid #b7e4df;border-radius:7px;padding:9px 11px;cursor:pointer}
+.omie-paid input{width:auto!important;min-height:0;flex:0 0 auto;accent-color:var(--teal)}
+.omie-paid span{text-transform:none;letter-spacing:0;font-size:12px;font-weight:600;color:var(--teal-dk)}
 .omie-months{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
 .omie-month{border:1px solid var(--border);background:#fff;color:var(--soft);border-radius:18px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;min-width:44px}
 .omie-month.active{background:var(--teal);border-color:var(--teal);color:#fff}
@@ -150,6 +157,8 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
 .omie-meta div{border:1px solid var(--border);background:#f9fbfa;border-radius:7px;padding:10px}
 .omie-tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;background:#e8f5f4;color:var(--teal);white-space:nowrap}
 .omie-tag.red{background:#fee2e2;color:#991b1b}.omie-tag.green{background:#dcfce7;color:#166534}.omie-tag.amber{background:#fef3c7;color:#92400e}.omie-tag.blue{background:#dbeafe;color:#1e40af}
+@media(max-width:979px){.omie-sidebar{position:static;top:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.omie-sidebar .omie-brand{flex:1 1 100%;margin-bottom:0}.omie-sidebar .omie-nav{width:auto;flex:0 0 auto;padding:8px 12px;border:1px solid var(--border)}}
+@media(max-width:560px){.omie-topbar{flex-direction:column}.omie-topbar .omie-refresh{align-self:flex-start}.omie-chart{height:240px}}
 </style>
 </head>
 <body>
@@ -325,6 +334,7 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
         <label><span>Categoria</span><select id="omieCategoryFilter"><option value="">Todas</option></select></label>
         <label><span>Conta</span><select id="omieAccountFilter"><option value="">Todas</option></select></label>
         <label class="omie-search"><span>Buscar</span><input id="omieSearch" type="search" placeholder="Nome, categoria, status"></label>
+        <label class="omie-paid"><input id="omieShowUnpaid" type="checkbox"><span>Mostrar também não pagos / a vencer</span></label>
       </div>
       <div class="omie-months" id="omieMonths"></div>
       <div class="omie-view active" data-omie-panel="overview">
@@ -348,19 +358,19 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
           <div class="card"><div class="card-hd"><div><p class="card-title">Saldo Acumulado</p><p class="card-sub">Resultado mês a mês</p></div></div><div class="chart-wrap omie-chart"><canvas id="omieCumulativeChart"></canvas></div></div>
           <div class="card"><div class="card-hd"><div><p class="card-title">Aberto x Realizado</p><p class="card-sub">Baixas e pendências</p></div></div><div class="chart-wrap omie-chart"><canvas id="omieOpenPaidChart"></canvas></div></div>
         </div>
-        <div class="card"><div class="card-hd"><div><p class="card-title">Resumo Mensal</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Mês</th><th>Qtd.</th><th style="text-align:right">Pagar</th><th style="text-align:right">Receber</th><th style="text-align:right">Aberto</th><th style="text-align:right">Saldo</th></tr></thead><tbody id="omieMonthlyBody"></tbody></table></div></div>
+        <div class="card"><div class="card-hd"><div><p class="card-title">Resumo Mensal</p></div></div><div style="overflow-x:auto"><table class="tbl" data-sort-table="monthly"><thead><tr><th data-k="month">Mês</th><th data-k="count">Qtd.</th><th data-k="payable" style="text-align:right">Pagar</th><th data-k="receivable" style="text-align:right">Receber</th><th data-k="open" style="text-align:right">Aberto</th><th data-k="net" style="text-align:right">Saldo</th></tr></thead><tbody id="omieMonthlyBody"></tbody></table></div></div>
       </div>
       <div class="omie-view" data-omie-panel="categories">
-        <div class="card"><div class="card-hd"><div><p class="card-title">Categorias</p><p class="card-sub">Ranking por impacto</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Categoria</th><th>Qtd.</th><th style="text-align:right">Pagar</th><th style="text-align:right">Receber</th><th style="text-align:right">Aberto</th><th style="text-align:right">Saldo</th></tr></thead><tbody id="omieCategoriasBody"></tbody></table></div></div>
+        <div class="card"><div class="card-hd"><div><p class="card-title">Categorias</p><p class="card-sub">Ranking por impacto</p></div></div><div style="overflow-x:auto"><table class="tbl" data-sort-table="categories"><thead><tr><th data-k="name">Categoria</th><th data-k="count">Qtd.</th><th data-k="payable" style="text-align:right">Pagar</th><th data-k="receivable" style="text-align:right">Receber</th><th data-k="open" style="text-align:right">Aberto</th><th data-k="net" style="text-align:right">Saldo</th></tr></thead><tbody id="omieCategoriasBody"></tbody></table></div></div>
       </div>
       <div class="omie-view" data-omie-panel="titles">
-        <div class="card"><div class="card-hd"><div><p class="card-title">Títulos</p><p class="card-sub" id="omieTitleCount">—</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Data</th><th>Tipo</th><th>Parceiro</th><th>Categoria</th><th>Status</th><th style="text-align:right">Valor</th><th style="text-align:right">Aberto</th></tr></thead><tbody id="omieTitlesBody"></tbody></table></div></div>
+        <div class="card"><div class="card-hd"><div><p class="card-title">Títulos</p><p class="card-sub" id="omieTitleCount">—</p></div></div><div style="overflow-x:auto"><table class="tbl" data-sort-table="titles"><thead><tr><th data-k="date">Data</th><th data-k="nature">Tipo</th><th data-k="clientName">Parceiro</th><th data-k="categoryName">Categoria</th><th data-k="status">Status</th><th data-k="amount" style="text-align:right">Valor</th><th data-k="openAmount" style="text-align:right">Aberto</th></tr></thead><tbody id="omieTitlesBody"></tbody></table></div></div>
       </div>
       <div class="omie-view" data-omie-panel="partners">
-        <div class="card"><div class="card-hd"><div><p class="card-title">Parceiros</p><p class="card-sub">Clientes e fornecedores com movimentação</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Parceiro</th><th>Qtd.</th><th style="text-align:right">Pagar</th><th style="text-align:right">Receber</th><th style="text-align:right">Aberto</th><th style="text-align:right">Saldo</th></tr></thead><tbody id="omiePartnersBody"></tbody></table></div></div>
+        <div class="card"><div class="card-hd"><div><p class="card-title">Parceiros</p><p class="card-sub">Clientes e fornecedores com movimentação</p></div></div><div style="overflow-x:auto"><table class="tbl" data-sort-table="partners"><thead><tr><th data-k="name">Parceiro</th><th data-k="count">Qtd.</th><th data-k="payable" style="text-align:right">Pagar</th><th data-k="receivable" style="text-align:right">Receber</th><th data-k="open" style="text-align:right">Aberto</th><th data-k="net" style="text-align:right">Saldo</th></tr></thead><tbody id="omiePartnersBody"></tbody></table></div></div>
       </div>
       <div class="omie-view" data-omie-panel="accounts">
-        <div class="card"><div class="card-hd"><div><p class="card-title">Contas Correntes</p><p class="card-sub">Contas cadastradas e movimento filtrado</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Conta</th><th>Banco</th><th>Tipo</th><th style="text-align:right">Saldo Inicial</th><th style="text-align:right">Movimento</th><th>Status</th></tr></thead><tbody id="omieAccountsBody"></tbody></table></div></div>
+        <div class="card"><div class="card-hd"><div><p class="card-title">Contas Correntes</p><p class="card-sub">Contas cadastradas e movimento filtrado</p></div></div><div style="overflow-x:auto"><table class="tbl" data-sort-table="accounts"><thead><tr><th data-k="name">Conta</th><th data-k="bank">Banco</th><th data-k="type">Tipo</th><th data-k="initialBalance" style="text-align:right">Saldo Inicial</th><th data-k="net" style="text-align:right">Movimento</th><th data-k="statusText">Status</th></tr></thead><tbody id="omieAccountsBody"></tbody></table></div></div>
       </div>
       <div class="omie-view" data-omie-panel="data">
         <div class="omie-grid-3">

@@ -224,9 +224,11 @@ function buildDashboardData({ movements, categories, clients, accounts, query })
   ]));
 
   const dateField = DATE_FIELD_MAP[query.dateField]?.row || DATE_FIELD_MAP.vencimento.row;
-  const normalizedMovements = movements.rows
-    .map((item) => normalizeMovement(item, { categoryMap, clientMap, accountMap, dateField }))
-    .filter((item) => item.date);
+  const normalizedMovements = dedupeMovements(
+    movements.rows
+      .map((item) => normalizeMovement(item, { categoryMap, clientMap, accountMap, dateField }))
+      .filter((item) => item.date),
+  );
 
   const summary = buildSummary(normalizedMovements, accountMap);
 
@@ -241,7 +243,7 @@ function buildDashboardData({ movements, categories, clients, accounts, query })
       endDate: query.endDate,
     },
     counts: {
-      movements: movements.totalRecords,
+      movements: normalizedMovements.length,
       categories: categories.totalRecords,
       clients: clients.totalRecords,
       accounts: accounts.totalRecords,
@@ -301,6 +303,22 @@ function normalizeMovement(item, { categoryMap, clientMap, accountMap, dateField
   row.overdue = !row.isLiquidated && row.dueDate && (parseDate(row.dueDate)?.getTime() || 0) < startOfToday().getTime();
 
   return row;
+}
+
+function dedupeMovements(rows) {
+  // A Omie (ListarMovimentos) pode devolver o mesmo titulo (nCodTitulo) mais de uma vez.
+  // Como o nCodTitulo identifica um unico titulo, colapsamos para uma linha por titulo,
+  // mantendo o registro com mais pagamento registrado (preserva o status/valor pago).
+  const map = new Map();
+  rows.forEach((row) => {
+    const key = row.id
+      || [row.nature, row.amount, row.dueDate, row.categoryCode, row.clientId, row.accountId, row.titleNumber].join('|');
+    const current = map.get(key);
+    if (!current || (Number(row.paidAmount) || 0) > (Number(current.paidAmount) || 0)) {
+      map.set(key, row);
+    }
+  });
+  return [...map.values()];
 }
 
 function buildSummary(rows, accountMap) {
