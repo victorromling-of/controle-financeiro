@@ -310,15 +310,19 @@ function dedupeMovements(rows) {
   // Como o nCodTitulo identifica um unico titulo, colapsamos para uma linha por titulo,
   // mantendo o registro com mais pagamento registrado (preserva o status/valor pago).
   const map = new Map();
+  const passthrough = [];
   rows.forEach((row) => {
-    const key = row.id
-      || [row.nature, row.amount, row.dueDate, row.categoryCode, row.clientId, row.accountId, row.titleNumber].join('|');
-    const current = map.get(key);
+    if (!row.id) {
+      // Sem nCodTitulo nao da para garantir que sao o mesmo titulo: nunca fundir.
+      passthrough.push(row);
+      return;
+    }
+    const current = map.get(row.id);
     if (!current || (Number(row.paidAmount) || 0) > (Number(current.paidAmount) || 0)) {
-      map.set(key, row);
+      map.set(row.id, row);
     }
   });
-  return [...map.values()];
+  return [...map.values(), ...passthrough];
 }
 
 function buildSummary(rows, accountMap) {

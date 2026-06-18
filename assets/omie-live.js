@@ -154,7 +154,10 @@
   }
 
   function compareRows(a, b, key) {
-    if (key === 'date') return String(a.dateISO || '').localeCompare(String(b.dateISO || ''));
+    if (key === 'date') {
+      return String(a.dateISO || '').localeCompare(String(b.dateISO || ''))
+        || (Math.abs(Number(a.amount) || 0) - Math.abs(Number(b.amount) || 0));
+    }
     if (NUMERIC_KEYS.has(key)) return (Number(a[key]) || 0) - (Number(b[key]) || 0);
     return normalize(String(a[key] ?? '')).localeCompare(normalize(String(b[key] ?? '')), 'pt-BR');
   }
@@ -289,8 +292,10 @@
 
   function renderHeader(rows) {
     const data = state.data;
+    const status = $('omieStatusFilter').value;
+    const paidOnly = !state.showUnpaid && !(status && status !== '__ACTIVE__');
     $('omieUpdated').textContent = 'Atualizado em ' + new Date(data.generatedAt).toLocaleString('pt-BR');
-    $('omieScope').textContent = `${number(rows.length)} movimentos filtrados · ${labelDateField(data.filters.dateField)} · ${data.filters.year}`;
+    $('omieScope').textContent = `${number(rows.length)} ${paidOnly ? 'títulos pagos' : 'movimentos'} · ${labelDateField(data.filters.dateField)} · ${data.filters.year}${paidOnly ? ' · somente pagos' : ''}`;
   }
 
   function renderKpis(rows, aggregate) {
