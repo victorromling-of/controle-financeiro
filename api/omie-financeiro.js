@@ -4,7 +4,7 @@ const OMIE_ENDPOINTS = {
   categories: 'https://app.omie.com.br/api/v1/geral/categorias/',
 };
 
-const PAGE_SIZE = 500;
+const PAGE_SIZE = 100;
 const MONTHS = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
 module.exports = async function handler(req, res) {
@@ -23,19 +23,23 @@ module.exports = async function handler(req, res) {
   }
 
   const year = Number(req.query?.ano) || new Date().getFullYear();
+  const period = {
+    filtrar_por_emissao_de: `01/01/${year}`,
+    filtrar_por_emissao_ate: `31/12/${year}`,
+  };
 
   try {
-    const [payable, receivable, categories] = await Promise.all([
-      fetchAllOmie(OMIE_ENDPOINTS.payable, 'ListarContasPagar', {
+    const payable = await fetchAllOmie(OMIE_ENDPOINTS.payable, 'ListarContasPagar', {
         apenas_importado_api: 'N',
         ordem_descrescente: 'S',
-      }, 'conta_pagar_cadastro', appKey, appSecret),
-      fetchAllOmie(OMIE_ENDPOINTS.receivable, 'ListarContasReceber', {
+        ...period,
+      }, 'conta_pagar_cadastro', appKey, appSecret);
+    const receivable = await fetchAllOmie(OMIE_ENDPOINTS.receivable, 'ListarContasReceber', {
         apenas_importado_api: 'N',
         ordem_descrescente: 'S',
-      }, 'conta_receber_cadastro', appKey, appSecret),
-      fetchAllOmie(OMIE_ENDPOINTS.categories, 'ListarCategorias', {}, 'categoria_cadastro', appKey, appSecret),
-    ]);
+        ...period,
+      }, 'conta_receber_cadastro', appKey, appSecret);
+    const categories = await fetchAllOmie(OMIE_ENDPOINTS.categories, 'ListarCategorias', {}, 'categoria_cadastro', appKey, appSecret);
 
     const response = buildFinancialSummary({ payable, receivable, categories, year });
 
@@ -60,19 +64,14 @@ async function fetchAllOmie(endpoint, call, baseParam, listKey, appKey, appSecre
   const totalPages = Number(first.total_de_paginas) || 1;
   const rows = Array.isArray(first[listKey]) ? [...first[listKey]] : [];
 
-  for (let page = 2; page <= totalPages; page += 3) {
-    const batch = [page, page + 1, page + 2]
-      .filter((pageNumber) => pageNumber <= totalPages)
-      .map((pageNumber) => callOmie(endpoint, call, {
-        ...baseParam,
-        pagina: pageNumber,
-        registros_por_pagina: PAGE_SIZE,
-      }, appKey, appSecret));
+  for (let page = 2; page <= totalPages; page += 1) {
+    const result = await callOmie(endpoint, call, {
+      ...baseParam,
+      pagina: page,
+      registros_por_pagina: PAGE_SIZE,
+    }, appKey, appSecret);
 
-    const results = await Promise.all(batch);
-    results.forEach((result) => {
-      if (Array.isArray(result[listKey])) rows.push(...result[listKey]);
-    });
+    if (Array.isArray(result[listKey])) rows.push(...result[listKey]);
   }
 
   return {
@@ -81,7 +80,7 @@ async function fetchAllOmie(endpoint, call, baseParam, listKey, appKey, appSecre
   };
 }
 
-async function callOmie(endpoint, call, param, appKey, appSecret) {
+async function callOmie(endpoint, call, param, appKey, appSecret, attempt = 1) {
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -96,7 +95,12 @@ async function callOmie(endpoint, call, param, appKey, appSecret) {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok || data.faultstring || data.code) {
-    throw new Error(data.faultstring || data.description || `Omie HTTP ${response.status}`);
+    const message = data.faultstring || data.description || `Omie HTTP ${response.status}`;
+    if (attempt < 6 && isOmieBusy(message)) {
+      await sleep(900 + attempt * 700);
+      return callOmie(endpoint, call, param, appKey, appSecret, attempt + 1);
+    }
+    throw new Error(message);
   }
 
   return data;
@@ -324,6 +328,14 @@ function isPastDue(row) {
 
 function normalizeStatus(status) {
   return String(status || '').trim().toUpperCase();
+}
+
+function isOmieBusy(message) {
+  return String(message || '').toLowerCase().includes('requisi') && String(message || '').toLowerCase().includes('execut');
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function round(value) {
