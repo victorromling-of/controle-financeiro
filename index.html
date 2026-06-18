@@ -106,6 +106,12 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
 .fs-text{font-size:11.5px;color:rgba(255,255,255,.8)}
 .nota-fg{background:#fef9e7;border:1px solid #f59e0b44;border-left:3px solid #f59e0b;border-radius:var(--r);padding:10px 14px;font-size:11px;color:#92400e;margin-bottom:14px}
 .nota-fg strong{display:block;margin-bottom:2px;font-size:11.5px}
+.omie-state{background:#eef7f6;border:1px solid #b7e4df;border-left:3px solid var(--teal);border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--teal-dk);margin-bottom:14px}
+.omie-state.error{background:#fef2f2;border-color:#fecaca;color:#991b1b;border-left-color:#ef4444}
+.omie-pill{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;background:#e8f5f4;color:var(--teal)}
+.omie-pill.warn{background:#fef3c7;color:#92400e}
+.omie-mini{font-size:10.5px;color:var(--muted);margin-top:3px}
+.omie-empty{font-size:11.5px;color:var(--muted);padding:10px 0}
 </style>
 </head>
 <body>
@@ -129,6 +135,7 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
     <button class="tab" onclick="show('maxwell',this)">Maxwell Foundation</button>
     <button class="tab" onclick="show('equipe',this)">Equipe & Facilitadores</button>
     <button class="tab" onclick="show('pagamentos',this)">Pagamentos</button>
+    <button class="tab" onclick="show('omie-live',this)">Omiê Live</button>
     <button class="tab" onclick="show('recomendacoes',this)">Recomendações</button>
   </div>
 </nav>
@@ -247,6 +254,24 @@ main{max-width:1280px;margin:0 auto;padding:16px 16px 64px}
   </div>
   <div class="card"><div class="card-hd"><div><p class="card-title" id="payTitle">Lançamentos</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Fornecedor / Descrição</th><th>Centro de Custo</th><th>Venc.</th><th style="text-align:right">Valor</th></tr></thead><tbody id="payBody"></tbody></table></div></div>
 </div>
+<div class="section" id="omie-live">
+  <div class="sec-hd"><h2>Omiê Live</h2><p>Resumo financeiro por vencimento em <span id="omieYear">2026</span> · <span id="omieUpdated">aguardando sincronização</span></p></div>
+  <div class="omie-state" id="omieStatus">Carregando dados da Omiê...</div>
+  <div class="kpi-row">
+    <div class="kpi" style="--kpi-accent:var(--teal)"><p class="kpi-label">Contas a Pagar</p><p class="kpi-val" id="omiePagarTotal">—</p><p class="kpi-sub" id="omiePagarSub">—</p></div>
+    <div class="kpi" style="--kpi-accent:#10b981"><p class="kpi-label">Contas a Receber</p><p class="kpi-val" id="omieReceberTotal">—</p><p class="kpi-sub" id="omieReceberSub">—</p></div>
+    <div class="kpi" style="--kpi-accent:var(--lime)"><p class="kpi-label">Saldo do Período</p><p class="kpi-val" id="omieSaldoTotal">—</p><p class="kpi-sub">Receber menos pagar</p></div>
+    <div class="kpi" style="--kpi-accent:#ef4444"><p class="kpi-label">Em Aberto Vencido</p><p class="kpi-val" id="omieVencidoTotal">—</p><p class="kpi-sub" id="omieVencidoSub">—</p></div>
+  </div>
+  <div class="g2">
+    <div class="card"><div class="card-hd"><div><p class="card-title">Fluxo Mensal Omiê</p><p class="card-sub">Contas por mês de vencimento · R$</p></div></div><div class="chart-wrap" style="height:250px"><canvas id="omieFluxo"></canvas></div></div>
+    <div class="card"><div class="card-hd"><div><p class="card-title">Status dos Títulos</p><p class="card-sub">Total por status no ano</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Origem</th><th>Status</th><th>Qtd.</th><th style="text-align:right">Valor</th></tr></thead><tbody id="omieStatusBody"><tr><td colspan="4" class="omie-empty">—</td></tr></tbody></table></div></div>
+  </div>
+  <div class="g2r">
+    <div class="card"><div class="card-hd"><div><p class="card-title">Categorias com Maior Impacto</p><p class="card-sub">Diferença entre receber e pagar</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Categoria</th><th>Qtd.</th><th style="text-align:right">Pagar</th><th style="text-align:right">Receber</th><th style="text-align:right">Saldo</th></tr></thead><tbody id="omieCategoriasBody"><tr><td colspan="5" class="omie-empty">—</td></tr></tbody></table></div></div>
+    <div class="card"><div class="card-hd"><div><p class="card-title">Próximos Vencimentos</p><p class="card-sub">Títulos em aberto ordenados por data</p></div></div><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Tipo</th><th>Venc.</th><th>Categoria</th><th>Status</th><th style="text-align:right">Valor</th></tr></thead><tbody id="omieVencimentosBody"><tr><td colspan="5" class="omie-empty">—</td></tr></tbody></table></div></div>
+  </div>
+</div>
 <div class="section" id="recomendacoes">
   <div class="insight-row">
     <div class="insight" style="--ins-color:#ef4444"><div class="insight-icon">🚨</div><p class="insight-title">Dependência Maxxwell = 85,8%</p><p class="insight-body">Praticamente todo o funding operacional vem de um único parceiro. Diversificação é prioridade.</p></div>
@@ -283,6 +308,8 @@ const cats=Object.keys(catMonthly);
 const totalExp=expMonthly.reduce((a,b)=>a+b,0);
 const fmt=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtK=n=>'R$ '+(n/1000).toFixed(1)+'k';
+const fmtShort=n=>Math.abs(n)>=1000000?'R$ '+(n/1000000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mi':fmtK(n);
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
 function catTotal(c){return catMonthly[c].reduce((a,b)=>a+b,0);}
 const top10=[{name:'Velasco Comercio / Juliana',cat:'Equipe Sede',val:32500},{name:'Criativa Dec — Aluguel Sede',cat:'Aluguel Sede',val:27244},{name:'Márcia dos Santos Pinheiro',cat:'Equipe Pedagógica',val:15500},{name:'Victor Raposo Romling',cat:'Equipe Sede',val:15263},{name:'Andrade Consultoria',cat:'Contabilidade & Jurídico',val:15028},{name:'Daniel Galdino Fonseca',cat:'Equipe Pedagógica',val:15000},{name:'Diego Silva Garbim',cat:'Equipe Sede',val:12700},{name:'Planet Printer / Rita',cat:'Equipe Pedagógica',val:12625},{name:'Giseli Figueiredo',cat:'Equipe Sede',val:12572},{name:'Juliana Ellaro Beijo',cat:'Equipe Sede',val:9275}];
 new Chart(document.getElementById('chartStack'),{type:'bar',data:{labels:months,datasets:cats.filter(c=>catTotal(c)>0).map(c=>({label:c,data:catMonthly[c],backgroundColor:catColors[c]+'cc',borderWidth:0,borderRadius:2}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:11}}},y:{stacked:true,grid:{color:'#f0f4f3'},ticks:{font:{size:11},callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
@@ -307,7 +334,71 @@ let selMonth='Mai';
 Object.keys(payData).forEach(m=>{const b=document.createElement('button');b.className='mbtn'+(m===selMonth?' active':'');b.textContent=m+'/2026';b.onclick=()=>{document.querySelectorAll('.mbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');selMonth=m;renderPay(m);};msel.appendChild(b);});
 function renderPay(m){const data=payData[m]||[];document.getElementById('payTitle').textContent=`Lançamentos — ${m}/2026`;let total=0,maxV=0,maxN='';const body=document.getElementById('payBody');body.innerHTML='';data.sort((a,b)=>b[3]-a[3]).forEach(([nome,cat,dt,val])=>{if(val>maxV){maxV=val;maxN=nome;}total+=val;const color=catColors[cat]||'#9ca3af';body.innerHTML+=`<tr><td>${nome}</td><td><span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;background:${color}22;color:${color}">${cat}</span></td><td style="color:var(--muted);font-size:11px">${dt}</td><td class="num">${fmt(val)}</td></tr>`;});document.getElementById('pkTotal').textContent=fmt(total);document.getElementById('pkQtd').textContent=data.length;document.getElementById('pkMaior').textContent=fmt(maxV);document.getElementById('pkMaiorNome').textContent=maxN.slice(0,36)+(maxN.length>36?'…':'');}
 renderPay(selMonth);
-function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');}
+let omieLoaded=false;
+let omieLoading=false;
+let omieFluxoChart=null;
+async function loadOmie(){
+  if(omieLoaded||omieLoading)return;
+  omieLoading=true;
+  const status=document.getElementById('omieStatus');
+  status.className='omie-state';
+  status.textContent='Carregando dados da Omiê...';
+  try{
+    const res=await fetch('/api/omie-financeiro?ano=2026');
+    const data=await res.json();
+    if(!res.ok||!data.ok)throw new Error(data.detail||data.error||'Falha ao carregar dados.');
+    renderOmie(data);
+    omieLoaded=true;
+    status.textContent=`Sincronizado com ${data.counts.payable.toLocaleString('pt-BR')} contas a pagar, ${data.counts.receivable.toLocaleString('pt-BR')} contas a receber e ${data.counts.categories.toLocaleString('pt-BR')} categorias.`;
+  }catch(err){
+    status.className='omie-state error';
+    status.textContent='Não foi possível carregar os dados da Omiê agora. '+err.message;
+  }finally{
+    omieLoading=false;
+  }
+}
+function renderOmie(data){
+  document.getElementById('omieYear').textContent=data.year;
+  document.getElementById('omieUpdated').textContent='atualizado em '+new Date(data.generatedAt).toLocaleString('pt-BR');
+  document.getElementById('omiePagarTotal').textContent=fmtShort(data.totals.payable);
+  document.getElementById('omiePagarSub').textContent=`${data.counts.payableInYear.toLocaleString('pt-BR')} títulos no ano · ${fmtShort(data.totals.payableOpen)} em aberto`;
+  document.getElementById('omieReceberTotal').textContent=fmtShort(data.totals.receivable);
+  document.getElementById('omieReceberSub').textContent=`${data.counts.receivableInYear.toLocaleString('pt-BR')} títulos no ano · ${fmtShort(data.totals.receivableOpen)} em aberto`;
+  document.getElementById('omieSaldoTotal').textContent=fmtShort(data.totals.net);
+  document.getElementById('omieSaldoTotal').style.color=data.totals.net>=0?'var(--teal)':'#ef4444';
+  document.getElementById('omieVencidoTotal').textContent=fmtShort(data.totals.overduePayable+data.totals.overdueReceivable);
+  document.getElementById('omieVencidoSub').textContent=`Pagar ${fmtShort(data.totals.overduePayable)} · receber ${fmtShort(data.totals.overdueReceivable)}`;
+  renderOmieFluxo(data.monthly);
+  renderOmieStatus(data.byStatus);
+  renderOmieCategorias(data.byCategory);
+  renderOmieVencimentos(data.upcoming);
+}
+function renderOmieFluxo(monthly){
+  const canvas=document.getElementById('omieFluxo');
+  if(omieFluxoChart)omieFluxoChart.destroy();
+  omieFluxoChart=new Chart(canvas,{type:'bar',data:{labels:monthly.map(m=>m.label),datasets:[{label:'A pagar',data:monthly.map(m=>m.payable),backgroundColor:'#ef444488',borderRadius:4},{label:'A receber',data:monthly.map(m=>m.receivable),backgroundColor:'#10b981aa',borderRadius:4},{label:'Saldo',type:'line',data:monthly.map(m=>m.balance),borderColor:'#006b65',backgroundColor:'#006b6522',borderWidth:2,pointRadius:4,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fmt(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0f4f3'},ticks:{font:{size:11},callback:v=>'R$'+(v/1000).toFixed(0)+'k'}}}}});
+}
+function renderOmieStatus(byStatus){
+  const rows=[
+    ...(byStatus.payable||[]).map(x=>({...x,type:'Pagar'})),
+    ...(byStatus.receivable||[]).map(x=>({...x,type:'Receber'}))
+  ].sort((a,b)=>b.total-a.total);
+  const body=document.getElementById('omieStatusBody');
+  body.innerHTML=rows.length?rows.map(row=>`<tr><td>${row.type}</td><td><span class="omie-pill">${escapeHtml(row.status)}</span></td><td class="num">${row.count.toLocaleString('pt-BR')}</td><td class="num">${fmt(row.total)}</td></tr>`).join(''):'<tr><td colspan="4" class="omie-empty">Sem dados no período.</td></tr>';
+}
+function renderOmieCategorias(items){
+  const body=document.getElementById('omieCategoriasBody');
+  body.innerHTML=items.length?items.map(item=>`<tr><td><strong style="color:var(--ink);font-weight:600">${escapeHtml(item.name)}</strong><div class="omie-mini">${escapeHtml(item.code)}</div></td><td class="num">${item.count.toLocaleString('pt-BR')}</td><td class="num">${fmt(item.payable)}</td><td class="num">${fmt(item.receivable)}</td><td class="num" style="color:${item.balance>=0?'var(--teal)':'#ef4444'};font-weight:600">${fmt(item.balance)}</td></tr>`).join(''):'<tr><td colspan="5" class="omie-empty">Sem categorias no período.</td></tr>';
+}
+function renderOmieVencimentos(upcoming){
+  const rows=[
+    ...((upcoming.payable||[]).map(x=>({...x,type:'Pagar'}))),
+    ...((upcoming.receivable||[]).map(x=>({...x,type:'Receber'})))
+  ].sort((a,b)=>a.dueDate.split('/').reverse().join('').localeCompare(b.dueDate.split('/').reverse().join(''))).slice(0,12);
+  const body=document.getElementById('omieVencimentosBody');
+  body.innerHTML=rows.length?rows.map(row=>`<tr><td>${row.type}</td><td>${escapeHtml(row.dueDate)}</td><td>${escapeHtml(row.category)}</td><td><span class="omie-pill ${row.overdue?'warn':''}">${escapeHtml(row.status)}</span></td><td class="num">${fmt(row.value)}</td></tr>`).join(''):'<tr><td colspan="5" class="omie-empty">Sem vencimentos em aberto.</td></tr>';
+}
+function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active');if(id==='omie-live')loadOmie();}
 </script>
 </body>
 </html>
