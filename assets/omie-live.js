@@ -134,7 +134,8 @@
       button.textContent = label;
       button.addEventListener('click', () => {
         const value = index + 1;
-        if (state.months.has(value) && state.months.size > 1) state.months.delete(value);
+        if (state.months.size === 12) state.months = new Set([value]);
+        else if (state.months.has(value) && state.months.size > 1) state.months.delete(value);
         else state.months.add(value);
         updateMonthButtons();
         render();
